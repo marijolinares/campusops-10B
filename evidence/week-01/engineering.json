@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "week": 1,
-  "commitSha": "ff77cb4ec26a9e5c68377cf8009cd3cedf9c112a",
+  "commitSha": "e3ec95e3714ab7f373b7ceeadf7be56bc252e71f",
   "decision": "Implementar un enfoque de concurrencia optimista (Optimistic UI) para los reportes fuera de línea en la aplicación móvil.",
   "alternatives": [
     "Bloqueo pesimista: requiere mantener una conexión activa con el servidor, lo cual viola el requerimiento offline.",
