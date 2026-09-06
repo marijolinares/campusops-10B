@@ -5,7 +5,7 @@
   "members": [
    {
       "studentId": "3523110094",
-      "commitShas": ["78f800b06b8a34a5aae56f94cb09aab42e8e5aa1"],
+      "commitShas": ["5261f573651d6ffe09db447f82a7ecc2c4e14feb"],
       "files": ["docs/problem-definition.md", "App.tsx"],
       "tests": ["course-tests/smoke.test.tsx"],
       "reviews": [],
@@ -16,7 +16,7 @@
     },
     {
       "studentId": "3523110316",
-      "commitShas": ["78f800b06b8a34a5aae56f94cb09aab42e8e5aa1"],
+      "commitShas": ["a0c4eeb6d50a454cecab5a83b144058808388286"],
       "files": ["docs/risk-register.md"],
       "tests": ["course-tests/smoke.test.tsx"],
       "reviews": ["App.tsx"],
@@ -27,7 +27,7 @@
     },
     {
       "studentId": "3523110247",
-      "commitShas": ["78f800b06b8a34a5aae56f94cb09aab42e8e5aa1"],
+      "commitShas": [],
       "files": [],
       "tests": [],
       "reviews": ["docs/risk-register.md"],
