@@ -24,6 +24,17 @@
       "command": "npm run test:smoke",
       "observedResult": "La prueba course-tests/smoke.test.tsx pasó correctamente ('renders the reproducible baseline and resolves backend state').",
       "explanation": "Revisé el uso de la bandera 'active' en el useEffect de App.tsx, que previene actualizaciones de estado en componentes desmontados. Completé el registro de riesgos (docs/risk-register.md) identificando y priorizando 3 riesgos del caso CampusOps."
+    },
+    {
+      "studentId": "3523110247",
+      "commitShas": [],
+      "files": [],
+      "tests": [],
+      "reviews": ["docs/risk-register.md"],
+      "prediction": "No aplica: no participó en la ejecución técnica de esta entrega.",
+      "command": "No aplica",
+      "observedResult": "No aplica",
+      "explanation": "No pudo participar en esta entrega por una situación personal, reportada directamente al docente. El equipo intentó contactarlo sin obtener respuesta antes de la fecha límite."
     }
   ]
 }
