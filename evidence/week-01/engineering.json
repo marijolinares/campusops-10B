@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "week": 1,
-  "commitSha": "f0bb815272b7356e38c98f01922c843b4aeaae64",
+  "commitSha": "78f800b06b8a34a5aae56f94cb09aab42e8e5aa1",
   "decision": "Colocar el cambio de la falla controlada en App.tsx en lugar de src/api/courseBackend.ts, ya que course-tests/smoke.test.tsx mockea completamente ese módulo mediante jest.mock.",
   "alternatives": [
     "Modificar la validación de contractVersion en courseBackend.ts: descartada porque smoke.test.tsx reemplaza ese módulo entero con un mock (getBackendHealth siempre devuelve contractVersion: 1 sin importar el código real), por lo que cualquier cambio ahí es invisible para la prueba.",
