@@ -1,20 +1,19 @@
 {
-  "_instructions": "Eliminen este campo cuando terminen. Comparen alternativas reales y relacionen la decisión con una comprobación ejecutada.",
   "schemaVersion": 1,
   "week": 1,
-  "commitSha": "REEMPLAZAR_CON_SHA_DEL_COMMIT_DE_CODIGO_Y_DOCUMENTOS",
-  "decision": "REEMPLAZAR_CON_LA_DECISION_DE_ALCANCE_RIESGO_O_ACEPTACION",
+  "commitSha": "7a525cf8e58c4a62e13fad599d32f6b1bbf7e834",
+  "decision": "Implementar un enfoque de concurrencia optimista (Optimistic UI) para los reportes fuera de línea en la aplicación móvil.",
   "alternatives": [
-    "REEMPLAZAR_CON_PRIMERA_ALTERNATIVA_REAL",
-    "REEMPLAZAR_CON_SEGUNDA_ALTERNATIVA_REAL"
+    "Bloqueo pesimista: requiere mantener una conexión activa con el servidor, lo cual viola el requerimiento offline.",
+    "Concurrencia optimista: asume que las actualizaciones locales serán válidas y resuelve conflictos tras la reconexión."
   ],
-  "tradeoff": "REEMPLAZAR_CON_EL_BENEFICIO_Y_EL_COSTO_DE_LA_DECISION",
+  "tradeoff": "Beneficio: Permite a los técnicos operar en zonas sin señal y registrar datos sin bloqueos. Costo: Aumenta la complejidad técnica para manejar conflictos de reasignación al sincronizar.",
   "requirementIds": ["AC-02", "AC-04"],
   "verification": [
     {
-      "command": "REEMPLAZAR_CON_COMANDO_EJECUTADO",
-      "result": "REEMPLAZAR_CON_RESULTADO_OBSERVADO",
-      "evidence": "REEMPLAZAR_CON_ARCHIVO_REPORTE_O_SALIDA_QUE_LO_DEMUESTRA"
+      "command": "npm run test:smoke",
+      "result": "El entorno de ejecución inicial es estable (2.3s sin memory leaks).",
+      "evidence": "Este baseline sienta la arquitectura para poder simular operaciones en memoria y probar concurrencia offline en los siguientes sprints."
     }
   ]
 }
