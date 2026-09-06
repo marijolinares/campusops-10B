@@ -1,0 +1,15 @@
+node_modules/
+.expo/
+android/
+ios/
+coverage/
+.jest-cache/
+dist/
+.env
+*.jks
+*.keystore
+*.p8
+*.p12
+reports/**/generated-*
+
+.DS_Store
