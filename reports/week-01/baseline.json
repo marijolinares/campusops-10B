@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
   "week": 1,
-  "commitSha": "7a525cf8e58c4a62e13fad599d32f6b1bbf7e834",
-  "generatedAt": "2026-09-06T17:40:00.000Z",
+  "commitSha": "f0bb815272b7356e38c98f01922c843b4aeaae64",
+  "generatedAt": "2026-09-06T14:55:00-06:00",
   "checks": [
     {
       "id": "falla-controlada",
       "status": "fail",
       "scenarioType": "failure",
       "command": "npm run test:smoke",
-      "evidence": "El test fallaba inicialmente reportando un warning 'Can't perform a React state update on an unmounted component', provocado por un setTimeout asíncrono."
+      "evidence": "El test course-tests/smoke.test.tsx fallaba con 'Expected substring: available, Received string: Backend: offline'. La causa: en App.tsx, la rama .then() de getBackendHealth() llamaba a setStatus('offline') en lugar de setStatus('available'), a pesar de que el backend respondía correctamente (ok: true, contractVersion: 1)."
     },
     {
       "id": "correccion-verificada",
       "status": "pass",
       "scenarioType": "nominal",
       "command": "npm run test:smoke",
-      "evidence": "El test de smoke pasa limpiamente sin advertencias, confirmando que la lógica previene la actualización de estado asíncrona si el componente fue desmontado."
+      "evidence": "Tras corregir App.tsx para llamar setStatus('available') en la rama .then() de getBackendHealth(), npm run test:smoke pasa correctamente: 'renders the reproducible baseline and resolves backend state' (PASS, 1 test, 1 total)."
     }
   ]
 }

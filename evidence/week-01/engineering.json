@@ -1,19 +1,24 @@
 {
   "schemaVersion": 1,
   "week": 1,
-  "commitSha": "7a525cf8e58c4a62e13fad599d32f6b1bbf7e834",
-  "decision": "Implementar un enfoque de concurrencia optimista (Optimistic UI) para los reportes fuera de línea en la aplicación móvil.",
+  "commitSha": "f0bb815272b7356e38c98f01922c843b4aeaae64",
+  "decision": "Colocar el cambio de la falla controlada en App.tsx en lugar de src/api/courseBackend.ts, ya que course-tests/smoke.test.tsx mockea completamente ese módulo mediante jest.mock.",
   "alternatives": [
-    "Bloqueo pesimista: requiere mantener una conexión activa con el servidor, lo cual viola el requerimiento offline.",
-    "Concurrencia optimista: asume que las actualizaciones locales serán válidas y resuelve conflictos tras la reconexión."
+    "Modificar la validación de contractVersion en courseBackend.ts: descartada porque smoke.test.tsx reemplaza ese módulo entero con un mock (getBackendHealth siempre devuelve contractVersion: 1 sin importar el código real), por lo que cualquier cambio ahí es invisible para la prueba.",
+    "Modificar la lógica de App.tsx que interpreta la respuesta de getBackendHealth(): esta sí es ejecutada realmente por el test, ya que el mock solo sustituye la llamada de red, no el manejo del estado en el componente."
   ],
-  "tradeoff": "Beneficio: Permite a los técnicos operar en zonas sin señal y registrar datos sin bloqueos. Costo: Aumenta la complejidad técnica para manejar conflictos de reasignación al sincronizar.",
+  "tradeoff": "Beneficio: la falla queda garantizada de ser detectada por la prueba existente sin necesidad de modificarla. Costo: la falla queda limitada a la lógica de presentación del estado en la UI, no valida la lógica real de contrato del backend en courseBackend.ts.",
   "requirementIds": ["AC-02", "AC-04"],
   "verification": [
     {
       "command": "npm run test:smoke",
-      "result": "El entorno de ejecución inicial es estable (2.3s sin memory leaks).",
-      "evidence": "Este baseline sienta la arquitectura para poder simular operaciones en memoria y probar concurrencia offline en los siguientes sprints."
+      "result": "FAIL: Expected substring: 'available', Received string: 'Backend: offline'",
+      "evidence": "Salida de Jest tras invertir setStatus('available') por setStatus('offline') en la rama .then() de App.tsx"
+    },
+    {
+      "command": "npm run test:smoke",
+      "result": "PASS: renders the reproducible baseline and resolves backend state",
+      "evidence": "Salida de Jest tras revertir App.tsx a su estado original con setStatus('available')"
     }
   ]
 }

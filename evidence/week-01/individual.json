@@ -3,38 +3,27 @@
   "week": 1,
   "teamId": "campusops-team",
   "members": [
-    {
-      "studentId": "Germán Yair Martinez Bolaños",
-      "commitShas": ["0fe257d99224061dda1fe95dcc2fce2a7fff963d"],
-      "files": ["docs/risk-register.md", "App.tsx"],
-      "tests": ["course-tests/smoke.test.tsx"],
-      "reviews": ["App.tsx"],
-      "prediction": "Espera que el comando ejecute Jest, monte el componente inicial de React Native en memoria y el test valide el flujo base exitosamente.",
-      "command": "npm run test:smoke",
-      "observedResult": "El componente renderizó correctamente la baseline y resolvió el estado del backend. El test pasó correctamente en menos de 2s.",
-      "explanation": "La prueba verifica que App.tsx inicializa correctamente. En mi revisión de código validé el uso de la bandera 'active' en el useEffect, lo cual previene memory leaks al desmontar componentes asíncronos. Completé también el registro de riesgos offline."
-    },
-    {
-      "studentId": "María José Linares",
+   {
+      "studentId": "3523110094",
       "commitShas": ["5261f573651d6ffe09db447f82a7ecc2c4e14feb"],
-      "files": ["docs/requirements.md", "reports/week-01/baseline.json"],
+      "files": ["docs/problem-definition.md", "App.tsx"],
       "tests": ["course-tests/smoke.test.tsx"],
-      "reviews": ["App.tsx"],
-      "prediction": "Espera documentar el baseline y los requerimientos offline en los reportes de equipo.",
+      "reviews": [],
+      "prediction": "Antes de provocar la falla esperaba que test:smoke pasara, ya que el proyecto original estaba sano. Al invertir setStatus en App.tsx, esperaba que fallara mostrando 'offline' en vez de 'available'.",
       "command": "npm run test:smoke",
-      "observedResult": "El componente inicial montó correctamente validando el estado base para continuar con offline ops.",
-      "explanation": "El baseline.json se completó con la evidencia del test pasando, sentando las bases de trazabilidad de errores."
+      "observedResult": "Antes de corregir: FAIL con 'Expected substring: available, Received string: Backend: offline'. Después de corregir: PASS.",
+      "explanation": "Definí el problema de CampusOps enfocado en la reasignación de técnicos, diseñé la falla controlada invirtiendo la rama .then() en App.tsx (verificando primero que courseBackend.ts no funcionaba por estar mockeado), diagnostiqué la causa y la corregí."
     },
     {
-      "studentId": "Irvin Isael Martínez Alejo",
-      "commitShas": ["19a5946a70ff38a42b24d00403fb7dbaf17f2b18"],
-      "files": ["reports/week-01/baseline.json", "evidence/week-01/engineering.json"],
+      "studentId": "3523110316",
+      "commitShas": ["0fe257d99224061dda1fe95dcc2fce2a7fff963d"],
+      "files": ["docs/risk-register.md"],
       "tests": ["course-tests/smoke.test.tsx"],
       "reviews": ["App.tsx"],
-      "prediction": "Espera completar el documento de decisiones de ingeniería respecto a los conflictos de red y documentar el baseline inicial.",
-      "command": "npm run typecheck",
-      "observedResult": "El código compila correctamente y no tiene errores de tipado TypeScript.",
-      "explanation": "Decidimos la arquitectura de concurrencia optimista para resolver conflictos y actualizamos el baseline con las fallas iniciales y pruebas corregidas."
+      "prediction": "Antes de ejecutar esperaba que la prueba pasara, ya que el cambio en App.tsx ya había sido revertido a su estado original.",
+      "command": "npm run test:smoke",
+      "observedResult": "La prueba course-tests/smoke.test.tsx pasó correctamente ('renders the reproducible baseline and resolves backend state').",
+      "explanation": "Revisé el uso de la bandera 'active' en el useEffect de App.tsx, que previene actualizaciones de estado en componentes desmontados. Completé el registro de riesgos (docs/risk-register.md) identificando y priorizando 3 riesgos del caso CampusOps."
     }
   ]
 }
