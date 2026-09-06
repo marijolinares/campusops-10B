@@ -6,7 +6,7 @@
   "members": [
     {
       "studentId": "Germán Yair Martinez Bolaños",
-      "commitShas": ["18c239063953283ad0e9e2aede8c9fa48281d15d"],
+      "commitShas": ["a0c4eeb6d50a454cecab5a83b144058808388286"],
       "files": ["docs/risk-register.md", "App.tsx"],
       "tests": ["course-tests/smoke.test.tsx"],
       "reviews": ["App.tsx"],
