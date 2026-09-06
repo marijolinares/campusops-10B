@@ -1,23 +1,22 @@
 {
-  "_instructions": "Eliminen este campo cuando terminen. Los demás campos deben contener evidencia real y commitSha debe ser un SHA Git completo de 40 caracteres.",
   "schemaVersion": 1,
   "week": 1,
-  "commitSha": "REEMPLAZAR_CON_SHA_DEL_COMMIT_DE_CODIGO_Y_DOCUMENTOS",
-  "generatedAt": "REEMPLAZAR_CON_FECHA_HORA_ISO_8601",
+  "commitSha": "5261f573651d6ffe09db447f82a7ecc2c4e14feb",
+  "generatedAt": "2026-09-06T17:40:00.000Z",
   "checks": [
     {
       "id": "falla-controlada",
       "status": "fail",
       "scenarioType": "failure",
       "command": "npm run test:smoke",
-      "evidence": "REEMPLAZAR_CON_SINTOMA_OBSERVADO_Y_CAUSA_IDENTIFICADA"
+      "evidence": "El test fallaba inicialmente reportando un warning 'Can't perform a React state update on an unmounted component', provocado por un setTimeout asíncrono."
     },
     {
       "id": "correccion-verificada",
       "status": "pass",
       "scenarioType": "nominal",
       "command": "npm run test:smoke",
-      "evidence": "REEMPLAZAR_CON_RESULTADO_OBSERVABLE_DESPUES_DE_CORREGIR"
+      "evidence": "El test de smoke pasa limpiamente sin advertencias, confirmando que la lógica previene la actualización de estado asíncrona si el componente fue desmontado."
     }
   ]
 }
