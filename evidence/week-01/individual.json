@@ -5,15 +5,15 @@
   "teamId": "REEMPLAZAR_CON_ID_DEL_EQUIPO",
   "members": [
     {
-      "studentId": "REEMPLAZAR_INTEGRANTE_1",
-      "commitShas": ["REEMPLAZAR_CON_SHA_COMPLETO"],
-      "files": ["REEMPLAZAR_CON_ARCHIVO_TRABAJADO"],
-      "tests": [],
-      "reviews": [],
-      "prediction": "REEMPLAZAR_CON_LO_QUE_ESPERABA_OBSERVAR",
-      "command": "REEMPLAZAR_CON_EL_COMANDO_EJECUTADO",
-      "observedResult": "REEMPLAZAR_CON_LO_QUE_OCURRIO",
-      "explanation": "REEMPLAZAR_CON_LA_EXPLICACION_TECNICA"
+      "studentId": "Germán Yair Martinez Bolaños",
+      "commitShas": ["18c239063953283ad0e9e2aede8c9fa48281d15d"],
+      "files": ["docs/risk-register.md", "App.tsx"],
+      "tests": ["course-tests/smoke.test.tsx"],
+      "reviews": ["App.tsx"],
+      "prediction": "Espera que el comando ejecute Jest, monte el componente inicial de React Native en memoria y el test valide el flujo base exitosamente.",
+      "command": "npm run test:smoke",
+      "observedResult": "El componente renderizó correctamente la baseline y resolvió el estado del backend. El test pasó correctamente en menos de 2s.",
+      "explanation": "La prueba verifica que App.tsx inicializa correctamente. En mi revisión de código validé el uso de la bandera 'active' en el useEffect, lo cual previene memory leaks al desmontar componentes asíncronos. Completé también el registro de riesgos offline."
     },
     {
       "studentId": "REEMPLAZAR_INTEGRANTE_2",
