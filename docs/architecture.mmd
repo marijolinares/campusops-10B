@@ -1,0 +1,25 @@
+graph TD
+    subgraph UI["UI (Presentación)"]
+        Screens["Pantallas: Lista / Detalle"]
+        Components["Componentes React Native"]
+    end
+
+    subgraph Application["Application (Casos de Uso)"]
+        ListIncidents["ListIncidentsUseCase"]
+        GetIncidentDetail["GetIncidentDetailUseCase"]
+    end
+
+    subgraph Domain["Domain (Dominio)"]
+        Models["Incident, User, CampusRole"]
+        Ports["IncidentRepository, LocationProvider, SessionPort"]
+    end
+
+    subgraph Infrastructure["Infrastructure (Adaptadores)"]
+        FakeRepo["InMemoryIncidentRepository"]
+        FakeLocation["FakeLocationProvider"]
+        FakeSession["FakeSessionAdapter"]
+    end
+
+    UI --> Application
+    Application --> Domain
+    Infrastructure --> Domain
