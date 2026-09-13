@@ -1,25 +1,54 @@
-graph TD
-    subgraph UI["UI (Presentación)"]
-        Screens["Pantallas: Lista / Detalle"]
-        Components["Componentes React Native"]
+flowchart TB
+
+    subgraph UI["Capa UI (React Native / Expo)"]
+        Reportante["Pantallas · Perfil Reportante<br/>crear incidencia, ver mis reportes"]
+        Tecnico["Pantallas · Perfil Técnico<br/>incidencias asignadas, diagnóstico, evidencias"]
+        Coordinador["Pantallas · Perfil Coordinador<br/>priorizar, asignar, cerrar/reabrir"]
     end
 
-    subgraph Application["Application (Casos de Uso)"]
-        ListIncidents["ListIncidentsUseCase"]
-        GetIncidentDetail["GetIncidentDetailUseCase"]
+    subgraph Application["Capa Application (casos de uso)"]
+        UC_Incidencias["Casos de uso: incidencias<br/>crear, asignar, cambiar estado, cerrar/reabrir"]
+        UC_Sesion["Casos de uso: sesión<br/>login, logout, refresh"]
+        UC_Sync["Casos de uso: sincronización<br/>cola offline, resolución de conflictos"]
     end
 
-    subgraph Domain["Domain (Dominio)"]
-        Models["Incident, User, CampusRole"]
-        Ports["IncidentRepository, LocationProvider, SessionPort"]
+    subgraph Domain["Capa Domain (reglas del negocio)"]
+        Entidades["Entidades y reglas<br/>Incidencia, Estado, Perfil, Prioridad"]
+        Puertos["Puertos (interfaces)<br/>IIncidenciaRepo, ISesionRepo, IUbicacionProvider"]
+        LimiteIncidencias["Límite: Incidencias"]
+        LimiteSesion["Límite: Sesión"]
     end
 
-    subgraph Infrastructure["Infrastructure (Adaptadores)"]
-        FakeRepo["InMemoryIncidentRepository"]
-        FakeLocation["FakeLocationProvider"]
-        FakeSession["FakeSessionAdapter"]
+    subgraph Infrastructure["Capa Infrastructure (adaptadores)"]
+        Persistencia["Adaptador de Persistencia<br/>almacenamiento local + cola offline"]
+        Proveedores["Adaptador de Proveedores<br/>mapas / geocodificación"]
+        Backend["Adaptador de Backend<br/>API de CampusOps"]
+        LimitePersistencia["Límite: Persistencia"]
+        LimiteProveedores["Límite: Proveedores"]
     end
 
+    %% Perfiles entrando por la UI
+    Reportante --> UI
+    Tecnico --> UI
+    Coordinador --> UI
+
+    %% UI solo depende de Application, nunca de Infrastructure directamente
     UI --> Application
+
+    %% Application depende de Domain (reglas y puertos), no de infraestructura concreta
     Application --> Domain
-    Infrastructure --> Domain
+
+    %% Infrastructure implementa los puertos definidos en Domain (inversión de dependencia)
+    Infrastructure -.implementa.-> Domain
+
+    %% Los límites viven dentro de sus capas correspondientes
+    LimiteIncidencias --- Entidades
+    LimiteSesion --- Entidades
+    LimitePersistencia --- Persistencia
+    LimiteProveedores --- Proveedores
+
+    %% Application usa infraestructura solo a través de los puertos de Domain
+    UC_Sync -.usa vía puerto.-> Puertos
+    Puertos -.implementado por.-> Persistencia
+    Puertos -.implementado por.-> Proveedores
+    Puertos -.implementado por.-> Backend
