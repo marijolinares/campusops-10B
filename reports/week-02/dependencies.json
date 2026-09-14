@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "week": 2,
-  "commitSha": "PENDIENTE_SHA_HEAD",
-  "generatedAt": "PENDIENTE_FECHA_ISO",
+  "commitSha": "c82cec0991944e15fac589ebaa9f27652fb7c5c1",
+  "generatedAt": "2026-09-13T18:11:40-06:00",
   "checks": [
     {
       "id": "arquitectura-nominal",

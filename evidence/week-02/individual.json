@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "week": 2,
+  "teamId": "campusops-team",
+  "members": [
+    {
+      "studentId": "3523110094",
+      "commitShas": ["c82cec0991944e15fac589ebaa9f27652fb7c5c1"],
+      "files": ["src/domain/incident.ts", "src/domain/ports.ts", "src/application/useCases/listIncidents.ts", "src/application/useCases/getIncidentDetail.ts", "src/infrastructure/fakeIncidentRepository.ts", "src/composition/root.ts", "src/ui/screens/IncidentListScreen.tsx", "src/ui/screens/IncidentDetailScreen.tsx", "tools/check-architecture.js", "App.tsx", "reports/week-02/dependencies.json"],
+      "tests": ["node tools/check-architecture.js", "npm run test:smoke"],
+      "reviews": [],
+      "prediction": "Antes de correr check-architecture.js en el estado sano esperaba 'OK', ya que la UI solo importa desde composition/root. Al forzar el import directo de infrastructure en IncidentListScreen.tsx, esperaba que el script detectara la violación.",
+      "command": "node tools/check-architecture.js",
+      "observedResult": "Estado sano: 'OK: ninguna importación directa de UI a infrastructure'. Tras introducir el import directo: 'VIOLATION: UI importa directamente de infrastructure — src/ui/screens/IncidentListScreen.tsx:4'. Tras revertir: 'OK' de nuevo.",
+      "explanation": "Construí el esqueleto de 4 capas (domain, application, infrastructure, ui) con un composition root como único punto de conexión, escribí el script tools/check-architecture.js para verificar el límite UI-infrastructure, y demostré la detección y corrección de la violación de AC-03."
+    },
+    {
+      "studentId": "3523110316",
+      "commitShas": ["c9fa1f8035598f9b5ab8f85fbd38ada4d0ccd85f"],
+      "files": ["docs/adr/ADR-001-architecture.md", "docs/architecture.mmd (placeholder inicial)", "course-tests/public/week-02.test.ts"],
+      "tests": ["npx jest --no-watchman --cacheDirectory .jest-cache course-tests/public/week-02.test.ts"],
+      "reviews": [],
+      "prediction": "Antes de ejecutar el test público esperaba que pasara, ya que el ADR incluye las palabras 'alternativa' y 'consecuencia/trade-off' que exige week-02.test.ts.",
+      "command": "npx jest --no-watchman --cacheDirectory .jest-cache course-tests/public/week-02.test.ts",
+      "observedResult": "2 suites, 2 tests, 0 fallos — PASS.",
+      "explanation": "Redacté el ADR-001 comparando Clean Architecture por capas vs Feature-First, justificando la decisión por testabilidad, complejidad y facilidad de cambio de proveedor. Instalé el test público de la semana e hice un placeholder inicial del diagrama para que Irvin lo completara."
+    },
+    {
+      "studentId": "3523110247",
+      "commitShas": ["8670b1c76e0925b2f891726649dd50c22bc79f3e"],
+      "files": ["docs/architecture.mmd"],
+      "tests": [],
+      "reviews": ["docs/architecture.mmd"],
+      "prediction": "Antes de completar el diagrama esperaba que, al no incluir una arista UI-->Infrastructure, el patrón de validación del test público no la detectara.",
+      "command": "npx jest --no-watchman --cacheDirectory .jest-cache course-tests/public/week-02.test.ts",
+      "observedResult": "El diagrama final incluye las 4 capas, los 3 perfiles, los límites de incidencias/sesión/persistencia/proveedores, y no contiene el patrón 'ui --> infrastructure'.",
+      "explanation": "Completé docs/architecture.mmd reemplazando el placeholder de German con el diagrama completo: las 4 capas con dependencias dirigidas (UI->Application->Domain, Infrastructure implementa Domain), los 3 perfiles entrando por UI, y los límites de incidencias, sesión, persistencia y proveedores dentro de sus capas correspondientes."
+    }
+  ]
+}
