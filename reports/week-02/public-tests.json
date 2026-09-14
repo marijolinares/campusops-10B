@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "week": 2,
   "mode": "public",
-  "commitSha": "c82cec0991944e15fac589ebaa9f27652fb7c5c1",
-  "evaluatedAt": "2026-09-14T00:36:37.095010+00:00",
+  "commitSha": "182b588e429fab4ab6a02dad8427bce79c570450",
+  "evaluatedAt": "2026-09-14T03:53:17.250662+00:00",
   "status": "fail",
   "checks": [
     {
@@ -39,12 +39,12 @@
     {
       "id": "schema:reports/week-02/dependencies.json",
       "status": "pass",
-      "detail": "2 checks indexed, 1 boundary/failure; report evaluates HEAD"
+      "detail": "2 checks indexed, 1 boundary/failure; evidence-only commit; invalid changes=[]"
     },
     {
       "id": "schema:evidence/week-02/engineering.json",
       "status": "pass",
-      "detail": "decision evidence is substantive and reproducible; report evaluates HEAD"
+      "detail": "decision evidence is substantive and reproducible; evidence-only commit; invalid changes=[]"
     },
     {
       "id": "schema:evidence/week-02/individual.json",
