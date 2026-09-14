@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "week": 2,
-  "commitSha": "c82cec0991944e15fac589ebaa9f27652fb7c5c1",
+  "commitSha": "f26f949f5620f798716ff1c65823277cdd1a40fd",
   "decision": "Organizar CampusOps en 4 capas (UI, Application, Domain, Infrastructure) siguiendo Clean Architecture, con un composition root (src/composition/root.ts) como único punto que conecta la infraestructura concreta con los casos de uso, para que la UI dependa solo de Application y nunca de Infrastructure.",
   "alternatives": [
     "Clean Architecture por capas: UI -> Application -> Domain (contratos) <- Infrastructure (implementaciones). Alta testabilidad del dominio con fakes inyectados, y cambio de proveedor (mapas, almacenamiento) sin tocar Application ni Domain, a costa de mayor complejidad inicial (más archivos e indirección).",
