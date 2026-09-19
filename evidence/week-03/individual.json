@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "week": 3,
+  "teamId": "campusops-team",
+  "members": [
+    {
+      "studentId": "3523110094",
+      "commitShas": ["84613e9a9563e12c0f256ebac962752b169b7e77"],
+      "files": ["docs/threat-model.md"],
+      "tests": ["npx jest --testPathPattern=course-tests/public/week-03 --no-coverage"],
+      "reviews": [],
+      "prediction": "Antes de ejecutar el test público de la semana 03 esperaba que pasara, ya que el threat-model.md contiene las cuatro palabras clave que busca el test: 'activo', 'amenaza', 'control' y 'verificación', vinculadas en un modelo estructurado con 6 amenazas priorizadas.",
+      "command": "npx jest --testPathPattern=course-tests/public/week-03 --no-coverage",
+      "observedResult": "El test 'threat model links assets, threats, controls and verification' pasa correctamente al encontrar las 4 palabras clave requeridas en docs/threat-model.md.",
+      "explanation": "Elaboré el modelo de amenazas completo en docs/threat-model.md: identifiqué 6 activos (incidencias, sesiones, fotografías, ubicaciones, asignaciones, logs), 5 fronteras de confianza (App↔Backend, Backend↔Persistencia, App↔Proveedor externo, App↔Almacenamiento local, App↔Permisos SO), y 6 amenazas priorizadas. Las 4 amenazas obligatorias son: T-01 consultar incidencias ajenas (Crítica), T-02 alterar asignaciones (Alta), T-03 filtrar datos en logs (Alta), T-04 exponer credenciales (Crítica). Para cada una definí el control que la reduce, la verificación con prueba concreta, la justificación de prioridad y el riesgo residual. También incluí T-05 (fotografías) y T-06 (ubicaciones) coordinadas con Irvin."
+    },
+    {
+      "studentId": "3523110316",
+      "commitShas": [],
+      "files": [],
+      "tests": [],
+      "reviews": [],
+      "prediction": "",
+      "command": "",
+      "observedResult": "",
+      "explanation": "Pendiente: completar con la aportación real de Lin (workflow CI + reports/week-03/security.json)."
+    },
+    {
+      "studentId": "3523110247",
+      "commitShas": [],
+      "files": [],
+      "tests": [],
+      "reviews": [],
+      "prediction": "",
+      "command": "",
+      "observedResult": "",
+      "explanation": "Pendiente: completar con la aportación real de Irvin (apoyo en modelo de amenazas + revisión técnica de T-05 y T-06)."
+    }
+  ]
+}
