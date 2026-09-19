@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "week": 2,
+  "commitSha": "312b3be79d1468b55cdb6173d5580980b42d2f1e",
+  "generatedAt": "2026-09-13T18:11:40-06:00",
+  "checks": [
+    {
+      "id": "arquitectura-nominal",
+      "status": "pass",
+      "scenarioType": "nominal",
+      "command": "node tools/check-architecture.js",
+      "evidence": "El comando reporta 'OK: ninguna importación directa de UI a infrastructure', confirmando que src/ui/screens/IncidentListScreen.tsx obtiene los datos únicamente a través de src/composition/root.ts, respetando el límite UI -> application -> domain <- infrastructure descrito en el ADR y el diagrama."
+    },
+    {
+      "id": "violacion-detectada-y-corregida",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "node tools/check-architecture.js",
+      "evidence": "Al modificar temporalmente IncidentListScreen.tsx para importar createFakeIncidentRepository directamente desde src/infrastructure/fakeIncidentRepository.ts (saltando composition/root.ts), el comando reportó: 'VIOLATION: UI importa directamente de infrastructure — src/ui/screens/IncidentListScreen.tsx:4 -> import { createFakeIncidentRepository } from ../../infrastructure/fakeIncidentRepository;' con código de salida 1. Esto contradice el ADR-001 y el diagrama (docs/architecture.mmd), que exigen que la UI dependa solo de application. Se corrigió revirtiendo el import a composition/root.ts, y el comando volvió a reportar 'OK: ninguna importación directa de UI a infrastructure'."
+    }
+  ]
+}

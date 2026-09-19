@@ -1,41 +1,40 @@
 {
-  "_instructions": "Eliminen este campo cuando terminen. Conserven exactamente tres integrantes y usen SHA Git completos de commits creados por cada persona.",
   "schemaVersion": 1,
   "week": 1,
-  "teamId": "REEMPLAZAR_CON_ID_DEL_EQUIPO",
+  "teamId": "campusops-team",
   "members": [
-    {
-      "studentId": "REEMPLAZAR_INTEGRANTE_1",
-      "commitShas": ["REEMPLAZAR_CON_SHA_COMPLETO"],
-      "files": ["REEMPLAZAR_CON_ARCHIVO_TRABAJADO"],
-      "tests": [],
+   {
+      "studentId": "3523110094",
+      "commitShas": ["5261f573651d6ffe09db447f82a7ecc2c4e14feb"],
+      "files": ["docs/problem-definition.md", "App.tsx"],
+      "tests": ["course-tests/smoke.test.tsx"],
       "reviews": [],
-      "prediction": "REEMPLAZAR_CON_LO_QUE_ESPERABA_OBSERVAR",
-      "command": "REEMPLAZAR_CON_EL_COMANDO_EJECUTADO",
-      "observedResult": "REEMPLAZAR_CON_LO_QUE_OCURRIO",
-      "explanation": "REEMPLAZAR_CON_LA_EXPLICACION_TECNICA"
+      "prediction": "Antes de provocar la falla esperaba que test:smoke pasara, ya que el proyecto original estaba sano. Al invertir setStatus en App.tsx, esperaba que fallara mostrando 'offline' en vez de 'available'.",
+      "command": "npm run test:smoke",
+      "observedResult": "Antes de corregir: FAIL con 'Expected substring: available, Received string: Backend: offline'. Después de corregir: PASS.",
+      "explanation": "Definí el problema de CampusOps enfocado en la reasignación de técnicos, diseñé la falla controlada invirtiendo la rama .then() en App.tsx (verificando primero que courseBackend.ts no funcionaba por estar mockeado), diagnostiqué la causa y la corregí."
     },
     {
-      "studentId": "REEMPLAZAR_INTEGRANTE_2",
-      "commitShas": ["REEMPLAZAR_CON_SHA_COMPLETO"],
-      "files": ["REEMPLAZAR_CON_ARCHIVO_TRABAJADO"],
-      "tests": [],
-      "reviews": [],
-      "prediction": "REEMPLAZAR_CON_LO_QUE_ESPERABA_OBSERVAR",
-      "command": "REEMPLAZAR_CON_EL_COMANDO_EJECUTADO",
-      "observedResult": "REEMPLAZAR_CON_LO_QUE_OCURRIO",
-      "explanation": "REEMPLAZAR_CON_LA_EXPLICACION_TECNICA"
+      "studentId": "3523110316",
+      "commitShas": ["a0c4eeb6d50a454cecab5a83b144058808388286"],
+      "files": ["docs/risk-register.md"],
+      "tests": ["course-tests/smoke.test.tsx"],
+      "reviews": ["App.tsx"],
+      "prediction": "Antes de ejecutar esperaba que la prueba pasara, ya que el cambio en App.tsx ya había sido revertido a su estado original.",
+      "command": "npm run test:smoke",
+      "observedResult": "La prueba course-tests/smoke.test.tsx pasó correctamente ('renders the reproducible baseline and resolves backend state').",
+      "explanation": "Revisé el uso de la bandera 'active' en el useEffect de App.tsx, que previene actualizaciones de estado en componentes desmontados. Completé el registro de riesgos (docs/risk-register.md) identificando y priorizando 3 riesgos del caso CampusOps."
     },
     {
-      "studentId": "REEMPLAZAR_INTEGRANTE_3",
-      "commitShas": ["REEMPLAZAR_CON_SHA_COMPLETO"],
-      "files": ["REEMPLAZAR_CON_ARCHIVO_TRABAJADO"],
+      "studentId": "3523110247",
+      "commitShas": [],
+      "files": [],
       "tests": [],
-      "reviews": [],
-      "prediction": "REEMPLAZAR_CON_LO_QUE_ESPERABA_OBSERVAR",
-      "command": "REEMPLAZAR_CON_EL_COMANDO_EJECUTADO",
-      "observedResult": "REEMPLAZAR_CON_LO_QUE_OCURRIO",
-      "explanation": "REEMPLAZAR_CON_LA_EXPLICACION_TECNICA"
+      "reviews": ["docs/risk-register.md"],
+      "prediction": "No aplica: no participó en la ejecución técnica de esta entrega.",
+      "command": "No aplica",
+      "observedResult": "No aplica",
+      "explanation": "No pudo participar en esta entrega por una situación personal, reportada directamente al docente. El equipo intentó contactarlo sin obtener respuesta antes de la fecha límite."
     }
   ]
 }

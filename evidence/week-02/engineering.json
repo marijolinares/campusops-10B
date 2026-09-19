@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "week": 2,
+  "commitSha": "312b3be79d1468b55cdb6173d5580980b42d2f1e",
+  "decision": "Organizar CampusOps en 4 capas (UI, Application, Domain, Infrastructure) siguiendo Clean Architecture, con un composition root (src/composition/root.ts) como único punto que conecta la infraestructura concreta con los casos de uso, para que la UI dependa solo de Application y nunca de Infrastructure.",
+  "alternatives": [
+    "Clean Architecture por capas: UI -> Application -> Domain (contratos) <- Infrastructure (implementaciones). Alta testabilidad del dominio con fakes inyectados, y cambio de proveedor (mapas, almacenamiento) sin tocar Application ni Domain, a costa de mayor complejidad inicial (más archivos e indirección).",
+    "Feature-First (modular por funcionalidad): cada feature (incidents, session, location) agrupa su propia UI, lógica y acceso a datos. Menor complejidad inicial y más intuitivo para un equipo pequeño, pero el proveedor y el acceso a datos quedan acoplados dentro de cada feature, dificultando sustituir un proveedor o probar la lógica sin mocks más frágiles."
+  ],
+  "tradeoff": "Beneficio: testabilidad alta del dominio (sin UI ni red) y facilidad para sustituir proveedores (fake en memoria hoy, AsyncStorage/API real en semanas futuras) sin tocar Application ni Domain. Costo: mayor cantidad de archivos y carpetas desde esta semana, y necesidad de disciplina del equipo para no importar infraestructura directamente desde la UI como atajo.",
+  "requirementIds": ["AC-02", "AC-03", "AC-04"],
+  "verification": [
+    {
+      "command": "node tools/check-architecture.js",
+      "result": "OK: ninguna importación directa de UI a infrastructure",
+      "evidence": "reports/week-02/dependencies.json, check 'arquitectura-nominal' — confirma que src/ui/screens/IncidentListScreen.tsx accede a los datos únicamente vía src/composition/root.ts"
+    },
+    {
+      "command": "node tools/check-architecture.js (tras modificar temporalmente IncidentListScreen.tsx para importar infrastructure directamente)",
+      "result": "VIOLATION: UI importa directamente de infrastructure — src/ui/screens/IncidentListScreen.tsx:4",
+      "evidence": "reports/week-02/dependencies.json, check 'violacion-detectada-y-corregida' — demuestra que el script detecta realmente una violación del límite documentado en el ADR-001 y el diagrama, y que tras revertir el cambio el comando vuelve a pasar"
+    }
+  ]
+}
