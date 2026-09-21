@@ -145,7 +145,7 @@ Las amenazas se priorizan usando una escala de **impacto** (qué tan grave es la
 
 | Campo | Detalle |
 |---|---|
-| **Amenaza** | Las fotografías adjuntas a una incidencia (evidencia de daños, diagnóstico visual) son accesibles por usuarios que no tienen relación con esa incidencia. Un Reportante podría acceder a las fotos de evidencia de un Técnico en otra incidencia, o las fotos pendientes en la cola offline son accesibles desde el sistema de archivos del dispositivo. |
+| **Amenaza** | Las fotografías adjuntas a una incidencia (evidencia de daños, diagnóstico visual) son accesibles por usuarios que no tienen relación con esa incidencia. Un Reportante podría acceder a las fotos de evidencia de un Técnico en otra incidencia, o las fotos pendientes en la cola offline son accesibles desde el sistema de archivos del dispositivo. **Ejemplo concreto:** el Técnico A, autenticado con su propio token, solicita `GET /v1/incidents/campus-inc-002/photos` de una incidencia asignada al Técnico B; se espera que el backend responda con acceso denegado (403) en vez de servir la foto. **Vector adicional:** cuando la cola offline sincroniza con el backend tras recuperar conexión, cada operación pendiente (`PendingIncidentOperation`) debe validar el `actorId` original antes de subir o exponer la foto. |
 | **Activo afectado** | A-03 (Fotografías) |
 | **Frontera** | F-01 (App ↔ Backend), F-04 (App ↔ Almacenamiento local), F-05 (App ↔ Permisos del SO) |
 | **Impacto** | Medio-alto — las fotografías pueden contener información visual sensible: placas de equipos, distribución de laboratorios, personas en el entorno. |
@@ -163,7 +163,7 @@ Las amenazas se priorizan usando una escala de **impacto** (qué tan grave es la
 
 | Campo | Detalle |
 |---|---|
-| **Amenaza** | Las coordenadas GPS exactas de las incidencias se transmiten, almacenan o registran sin necesidad, revelando la ubicación precisa de fallas y la distribución del campus. El proveedor de geocodificación externo recibe coordenadas y podría correlacionarlas con la identidad del usuario. |
+| **Amenaza** | Las coordenadas GPS exactas de las incidencias se transmiten, almacenan o registran sin necesidad, revelando la ubicación precisa de fallas y la distribución del campus. El proveedor de geocodificación externo recibe coordenadas y podría correlacionarlas con la identidad del usuario. **Caso concreto:** un `console.log` de depuración registra el objeto completo de la incidencia (incluyendo `latitude`/`longitude`) en texto plano antes de pasar por `redactForTelemetry`; si ese log llega a un archivo persistente o a la salida de CI, la ubicación exacta queda expuesta sin comprometer red ni backend. |
 | **Activo afectado** | A-04 (Ubicaciones) |
 | **Frontera** | F-03 (App ↔ Proveedor externo), F-01 (App ↔ Backend) |
 | **Impacto** | Medio — las coordenadas ficticias no exponen personas reales, pero el patrón de diseño debe proteger ubicaciones reales en un despliegue futuro. |
@@ -224,3 +224,4 @@ La Clean Architecture adoptada en ADR-001 facilita los controles de seguridad:
 - `docs/CAMPUSOPS_API.md` — contrato público de la API, actores de prueba, variantes.
 - `docs/adr/ADR-001-architecture.md` — arquitectura Clean Architecture por capas.
 - `docs/architecture.mmd` — diagrama de fronteras de confianza por capa.
+

@@ -25,16 +25,16 @@
       "observedResult": "",
       "explanation": "Pendiente: completar con la aportación real de Lin (workflow CI + reports/week-03/security.json)."
     },
-    {
+        {
       "studentId": "3523110247",
-      "commitShas": [],
-      "files": [],
-      "tests": [],
-      "reviews": [],
-      "prediction": "",
-      "command": "",
-      "observedResult": "",
-      "explanation": "Pendiente: completar con la aportación real de Irvin (apoyo en modelo de amenazas + revisión técnica de T-05 y T-06)."
+      "commitShas": ["90672f85849866ed84bf115c93bca8921b2d9f64"],
+      "files": ["docs/threat-model.md"],
+      "tests": ["npx jest --testPathPattern=course-tests/public/week-03 --no-coverage"],
+      "reviews": ["docs/threat-model.md (T-05, T-06)"],
+      "prediction": "Antes de correr el test publico de la semana 03 esperaba que siguiera pasando tras integrar mis dos aportes (el ejemplo del Tecnico A/B en T-05 y el caso de logs en texto plano en T-06) dentro de las filas de Amenaza existentes, ya que no elimine ninguna de las 4 palabras clave que el test busca (activo, amenaza, control, verificacion) y solo añadi texto adicional a filas ya presentes.",
+      "command": "npx jest --testPathPattern=course-tests/public/week-03 --no-coverage",
+      "observedResult": "El test 'threat model links assets, threats, controls and verification' sigue pasando correctamente tras la integracion de mis ejemplos en T-05 y T-06.",
+      "explanation": "Realice la revision tecnica de T-05 (Acceso no autorizado a fotografias) y T-06 (Exposicion de ubicaciones precisas) escritas por German, integrando dos aportes concretos en lugar de mantenerlos en una seccion aparte: en T-05 agregue el ejemplo especifico del Tecnico A solicitando GET /v1/incidents/campus-inc-002/photos de una incidencia asignada al Tecnico B (esperando 403), y el vector de riesgo de la cola offline sincronizando PendingIncidentOperation con el backend sin revalidar el actorId original; en T-06 agregue el caso concreto de que un console.log de depuracion registre latitude/longitude en texto plano antes de pasar por redactForTelemetry. Tambien resolvi un conflicto de merge en docs/threat-model.md al traer los cambios de main, eliminando mi seccion separada 'Amenazas - aportacion de Irvin' una vez movido el contenido relevante a T-05/T-06, evitando duplicar el contenido dentro de las filas de la tabla."
     }
   ]
 }
