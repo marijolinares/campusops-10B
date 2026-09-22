@@ -5,7 +5,7 @@
   "members": [
     {
       "studentId": "3523110094",
-      "commitShas": ["PENDIENTE"],
+      "commitShas": ["0cc97b32680fcb5f203d4dea991196366a5277ec"],
       "files": [".github/workflows/week-03-ci-amenazas-feedback.yml", "reports/week-03/security.json", "evidence/week-03/engineering.json"],
       "tests": ["python tools/course_public_evaluator.py --week 03 --mode verify"],
       "reviews": [],
@@ -15,7 +15,7 @@
       "explanation": "Corregí proactivamente el workflow de CI agregando fetch-depth: 0 al paso de checkout, anticipando el mismo problema detectado en la Semana 2. Diseñé y ejecuté una falla controlada de seguridad introduciendo un secreto ficticio que coincide con el patrón aws_access_key del evaluador, confirmando que 'secret_scan' lo detecta y bloquea, y luego demostrando la corrección. Documenté ambos resultados en reports/week-03/security.json y conecté la decisión de priorizar la detección automática de secretos (sobre revisión manual) en evidence/week-03/engineering.json, vinculada al control C-04 de T-04 del modelo de amenazas."
     },
     {
-       "studentId": "3523110094",
+       "studentId": "3523110316",
         "commitShas": ["160ad72"],
         "files": ["docs/threat-model.md"],
         "tests": ["npx jest --testPathPattern=course-tests/public/week-03 --no-coverage"],

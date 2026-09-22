@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "week": 3,
-  "commitSha": "PENDIENTE_SHA_HEAD",
-  "generatedAt": "PENDIENTE_FECHA_ISO",
+  "commitSha": "0cc97b32680fcb5f203d4dea991196366a5277ec",
+  "generatedAt": "2026-09-21T21:21:41-06:00",
   "checks": [
     {
       "id": "secret-scan-nominal",
