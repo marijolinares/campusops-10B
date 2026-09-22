@@ -16,7 +16,7 @@
       "status": "pass",
       "scenarioType": "failure",
       "command": "python tools/course_public_evaluator.py --week 03 --mode verify",
-      "evidence": "Se creó temporalmente el archivo tmp-security-check/fake-secret-demo.txt con el contenido ficticio 'AKIA1234567890ABCDEF' (coincide con el patrón aws_access_key: AKIA[0-9A-Z]{16}). Al ejecutar el comando, 'secret_scan' reportó status fail con hits=['tmp-security-check/fake-secret-demo.txt:aws_access_key'], demostrando que la comprobación detecta un incumplimiento real y no lo oculta. Se eliminó el archivo (Remove-Item -Recurse -Force tmp-security-check) y se volvió a ejecutar el comando, confirmando 'secret_scan' con status pass y hits=[]."
+      "evidence": "Se creó temporalmente el archivo tmp-security-check/fake-secret-demo.txt con una cadena ficticia que sigue el patrón aws_access_key (prefijo de 4 letras mayúsculas reservado por AWS seguido de 16 caracteres alfanuméricos en mayúsculas), sin corresponder a ninguna credencial real. Al ejecutar el comando, 'secret_scan' reportó status fail identificando el archivo tmp-security-check/fake-secret-demo.txt bajo la categoría aws_access_key, demostrando que la comprobación detecta un incumplimiento real y no lo oculta. Se eliminó el archivo (Remove-Item -Recurse -Force tmp-security-check) y se volvió a ejecutar el comando, confirmando 'secret_scan' con status pass y hits=[]."
     }
   ]
 }

@@ -11,7 +11,7 @@
       "reviews": [],
       "prediction": "Antes de corregir el workflow esperaba que el checkout sin fetch-depth:0 causara el mismo problema de la Semana 2 (no poder calcular HEAD^ para validar commitSha en CI). Al introducir un secreto ficticio esperaba que 'secret_scan' fallara detectándolo, y que tras eliminarlo volviera a pasar.",
       "command": "python tools/course_public_evaluator.py --week 03 --mode verify",
-      "observedResult": "Con el archivo tmp-security-check/fake-secret-demo.txt (clave AWS ficticia AKIA1234567890ABCDEF), 'secret_scan' reportó status fail con hits=['tmp-security-check/fake-secret-demo.txt:aws_access_key']. Tras eliminar el archivo, el mismo comando reportó status pass con hits=[].",
+      "observedResult": "Con el archivo tmp-security-check/fake-secret-demo.txt (clave AWS ficticia que sigue el patrón aws_access_key: prefijo reservado de AWS seguido de 16 caracteres alfanuméricos en mayúsculas), 'secret_scan' reportó status fail identificando el archivo bajo la categoría aws_access_key. Tras eliminar el archivo, el mismo comando reportó status pass con hits=[].",
       "explanation": "Corregí proactivamente el workflow de CI agregando fetch-depth: 0 al paso de checkout, anticipando el mismo problema detectado en la Semana 2. Diseñé y ejecuté una falla controlada de seguridad introduciendo un secreto ficticio que coincide con el patrón aws_access_key del evaluador, confirmando que 'secret_scan' lo detecta y bloquea, y luego demostrando la corrección. Documenté ambos resultados en reports/week-03/security.json y conecté la decisión de priorizar la detección automática de secretos (sobre revisión manual) en evidence/week-03/engineering.json, vinculada al control C-04 de T-04 del modelo de amenazas."
     },
     {
