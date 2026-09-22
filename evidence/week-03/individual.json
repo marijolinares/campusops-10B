@@ -5,7 +5,7 @@
   "members": [
     {
       "studentId": "3523110094",
-      "commitShas": ["0cc97b32680fcb5f203d4dea991196366a5277ec"],
+      "commitShas": ["e78f427fb69146dc4e0d29e0216d44478803e385"],
       "files": [".github/workflows/week-03-ci-amenazas-feedback.yml", "reports/week-03/security.json", "evidence/week-03/engineering.json"],
       "tests": ["python tools/course_public_evaluator.py --week 03 --mode verify"],
       "reviews": [],
@@ -16,7 +16,7 @@
     },
     {
        "studentId": "3523110316",
-        "commitShas": ["160ad72"],
+        "commitShas": ["160ad72dc191a968a66d5ee57576e77e23472325"],
         "files": ["docs/threat-model.md"],
         "tests": ["npx jest --testPathPattern=course-tests/public/week-03 --no-coverage"],
         "reviews": [],
