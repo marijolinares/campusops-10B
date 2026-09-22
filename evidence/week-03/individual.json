@@ -5,7 +5,7 @@
   "members": [
     {
       "studentId": "3523110094",
-      "commitShas": ["e78f427fb69146dc4e0d29e0216d44478803e385"],
+      "commitShas": ["0386b039e6ac6d057b7d186e0625ca80cd117522"],
       "files": [".github/workflows/week-03-ci-amenazas-feedback.yml", "reports/week-03/security.json", "evidence/week-03/engineering.json"],
       "tests": ["python tools/course_public_evaluator.py --week 03 --mode verify"],
       "reviews": [],
