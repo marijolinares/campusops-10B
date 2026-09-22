@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "week": 3,
-  "commitSha": "e9c19c52607c5458b66f8da98e24c6104c76ee31",
+  "commitSha": "afcd44a24c2bb1c7fbe6aa5a1032c6c0823ffeb5",
   "decision": "Priorizar T-04 (exponer credenciales) y T-01 (consultar incidencias ajenas) como las amenazas críticas de esta semana, e integrar la búsqueda automática de secretos (control C-04) directamente en el pipeline de CI mediante el workflow de GitHub Actions, en vez de depender de una revisión manual antes de cada push.",
   "alternatives": [
     "Revisión manual de secretos antes de cada commit (checklist del equipo): más simple de implementar, pero depende de que cada integrante recuerde revisar, es fácil de omitir bajo presión de tiempo, y no deja evidencia reproducible de que se ejecutó.",
