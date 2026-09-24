@@ -11,7 +11,7 @@ export async function getBackendHealth(
 ): Promise<BackendHealth> {
   const response = await fetch(`${baseUrl}/health`);
   if (!response.ok) {
-    throw new Error(`Backend health failed with ${response.status}`);
+    throw new Error('No fue posible conectar con el servicio de salud del backend.');
   }
   const payload: unknown = await response.json();
   if (

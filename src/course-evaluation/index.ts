@@ -12,8 +12,60 @@ function pending(name: string): never {
   throw new Error(`${name} must be implemented in the assigned week`);
 }
 
-export function redactForTelemetry(_input: unknown): unknown {
-  return pending('redactForTelemetry');
+const SENSITIVE_KEYS = new Set([
+  'authorization',
+  'password',
+  'token',
+  'accessToken',
+  'refreshToken',
+  'email',
+  'displayName',
+  'name',
+  'userId',
+  'reporterId',
+  'technicianId',
+  'assignedTechnicianId',
+  'location',
+  'latitude',
+  'longitude',
+  'photos',
+  'evidence',
+  'internalComments',
+  'assignmentHistory',
+]);
+
+function redactObject(obj: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const key of Object.keys(obj)) {
+    if (SENSITIVE_KEYS.has(key)) {
+      result[key] = '[REDACTED]';
+    } else if (
+      typeof obj[key] === 'object' &&
+      obj[key] !== null &&
+      !Array.isArray(obj[key])
+    ) {
+      result[key] = redactObject(obj[key] as Record<string, unknown>);
+    } else if (Array.isArray(obj[key])) {
+      result[key] = (obj[key] as unknown[]).map((item) =>
+        typeof item === 'object' && item !== null && !Array.isArray(item)
+          ? redactObject(item as Record<string, unknown>)
+          : item,
+      );
+    } else {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+}
+
+export function redactForTelemetry(input: unknown): unknown {
+  if (typeof input !== 'object' || input === null) {
+    return input;
+  }
+  if (Array.isArray(input)) {
+    return input.map((item) => redactForTelemetry(item));
+  }
+  return redactObject(input as Record<string, unknown>);
 }
 
 export function parseRemoteResource(_input: unknown): ParseResult {
