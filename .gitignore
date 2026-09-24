@@ -10,6 +10,6 @@ dist/
 *.keystore
 *.p8
 *.p12
-reports/**/generated-*
+reports/
 
 .DS_Store
