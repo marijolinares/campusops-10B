@@ -6,10 +6,12 @@ const host = process.env.COURSE_BACKEND_HOST ?? '127.0.0.1';
 const port = Number(process.env.COURSE_BACKEND_PORT ?? 4310);
 const completedOperations = new Map();
 
+const allowedOrigin = process.env.COURSE_BACKEND_ALLOWED_ORIGIN ?? 'http://localhost:8081';
+
 function send(response, status, body, headers = {}) {
   const value = typeof body === 'string' ? body : JSON.stringify(body);
   response.writeHead(status, {
-    'access-control-allow-origin': '*',
+    'access-control-allow-origin': allowedOrigin,
     'content-type': typeof body === 'string' ? 'application/json' : 'application/json; charset=utf-8',
     ...headers,
   });
