@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "week": 4,
+  "teamId": "campusops-10B",
+  "members": [
+    {
+      "studentId": "german.martinez",
+      "commitShas": [
+        "9486727cd3538ebfaf643d7226d1cb39b8a8ee56"
+      ],
+      "files": [
+        "docs/security-controls.md"
+      ],
+      "tests": [],
+      "reviews": [
+        "Redacción de docs/security-controls.md y su vinculación con amenazas de semana 3"
+      ],
+      "prediction": "Los controles explicados satisfacen los criterios AC-04",
+      "command": "make verify-week-04",
+      "observedResult": "Validación de controles superada",
+      "explanation": "Los controles documentados se ajustan a las mitigaciones de T-03 y T-04 y están implementados."
+    },
+    {
+      "studentId": "irvin.martinez",
+      "commitShas": [
+        "9486727cd3538ebfaf643d7226d1cb39b8a8ee56"
+      ],
+      "files": [
+        "src/course-evaluation/index.ts",
+        "reports/week-04/negative-tests.json"
+      ],
+      "tests": [
+        "Pruebas de caminos de error en logs y sanitización"
+      ],
+      "reviews": [],
+      "prediction": "La sanitización ocultará los campos sensibles correctamente",
+      "command": "npx jest course-tests/public/week-04.test.ts",
+      "observedResult": "El test CampusOps redacts personal and incident-sensitive data pasa correctamente",
+      "explanation": "redactForTelemetry procesa adecuadamente todos los campos mencionados en el contrato."
+    },
+    {
+      "studentId": "maria.linares",
+      "commitShas": [
+        "9486727cd3538ebfaf643d7226d1cb39b8a8ee56"
+      ],
+      "files": [
+        "evidence/week-04/engineering.json"
+      ],
+      "tests": [],
+      "reviews": [
+        "Consolidación de evidencias de ingeniería y validación final"
+      ],
+      "prediction": "El reporte public-test-week-04 será exitoso",
+      "command": "make public-test-week-04",
+      "observedResult": "Todos los scripts de evaluación marcan PASS",
+      "explanation": "Los JSON generados son válidos de acuerdo al esquema esperado (schemaVersion 1, week 4)."
+    }
+  ]
+}
