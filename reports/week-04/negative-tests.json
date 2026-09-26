@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "week": 4,
+  "commitSha": "650757f856a6354db285a18f23a4740b0625457c",
+  "generatedAt": "2026-09-26T13:13:00Z",
+  "checks": [
+    {
+      "id": "negative-test-telemetry-redaction",
+      "status": "pass",
+      "scenarioType": "boundary",
+      "command": "npx jest course-tests/public/week-04.test.ts",
+      "evidence": "CampusOps redacts personal and incident-sensitive data while preserving technical context"
+    },
+    {
+      "id": "negative-test-error-path-exposure",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest course-tests/public/week-04.test.ts",
+      "evidence": "Errors safely wrapped without leaking sensitive info into logs"
+    }
+  ]
+}
