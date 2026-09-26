@@ -12,24 +12,49 @@ function pending(name: string): never {
   throw new Error(`${name} must be implemented in the assigned week`);
 }
 
+const REDACTED = '[REDACTED]' as const;
+
 const SENSITIVE_KEYS = new Set([
-  'authorization', 'accesstoken', 'refreshtoken', 'token',
-  'password', 'apikey', 'api_key', 'secret',
-  'email', 'displayname', 'location', 'photos', 'internalcomments',
+  'authorization',
+  'password',
+  'token',
+  'accesstoken',
+  'refreshtoken',
+  'email',
+  'displayname',
+  'name',
+  'userid',
+  'reporterid',
+  'technicianid',
+  'assignedtechnicianid',
+  'location',
+  'latitude',
+  'longitude',
+  'photos',
+  'evidence',
+  'internalcomments',
+  'assignmenthistory',
 ]);
 
-function redactValue(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(redactValue);
-  if (value !== null && typeof value === 'object') return redactObject(value as Record<string, unknown>);
-  return value;
+function normalizeKey(key: string): string {
+  return key.toLowerCase().replace(/[_-]/g, '');
 }
 
-function redactObject(input: Record<string, unknown>): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(input)) {
-    result[key] = SENSITIVE_KEYS.has(key.toLowerCase()) ? '[REDACTED]' : redactValue(value);
+function redactValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => redactValue(item));
   }
-  return result;
+  if (value !== null && typeof value === 'object') {
+    const source = value as Record<string, unknown>;
+    const result: Record<string, unknown> = {};
+    for (const key of Object.keys(source)) {
+      result[key] = SENSITIVE_KEYS.has(normalizeKey(key))
+        ? REDACTED
+        : redactValue(source[key]);
+    }
+    return result;
+  }
+  return value;
 }
 
 export function redactForTelemetry(input: unknown): unknown {

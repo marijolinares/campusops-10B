@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "week": 3,
+  "commitSha": "afcd44a24c2bb1c7fbe6aa5a1032c6c0823ffeb5",
+  "decision": "Priorizar T-04 (exponer credenciales) y T-01 (consultar incidencias ajenas) como las amenazas críticas de esta semana, e integrar la búsqueda automática de secretos (control C-04) directamente en el pipeline de CI mediante el workflow de GitHub Actions, en vez de depender de una revisión manual antes de cada push.",
+  "alternatives": [
+    "Revisión manual de secretos antes de cada commit (checklist del equipo): más simple de implementar, pero depende de que cada integrante recuerde revisar, es fácil de omitir bajo presión de tiempo, y no deja evidencia reproducible de que se ejecutó.",
+    "Búsqueda automática de secretos integrada en el CI (course_public_evaluator.py, check 'secret_scan'): se ejecuta en cada push/PR sin depender de que alguien la recuerde, genera evidencia reproducible (hits=[] o la lista de coincidencias), y bloquea el pipeline si detecta un patrón de secreto real."
+  ],
+  "tradeoff": "Beneficio: detección automática y consistente en cada integración, sin depender de la disciplina individual del equipo; evidencia reproducible del resultado. Costo: los patrones de detección (private_key, github_token, aws_access_key, public_secret_name) son fijos y no cubren cualquier formato de secreto; un patrón no contemplado podría pasar desapercibido (riesgo residual ya documentado en T-04 del threat model).",
+  "requirementIds": ["AC-01", "AC-02", "AC-03", "AC-04", "AC-05"],
+  "verification": [
+    {
+      "command": "python tools/course_public_evaluator.py --week 03 --mode verify",
+      "result": "secret_scan: pass, hits=[]",
+      "evidence": "reports/week-03/security.json, check 'secret-scan-nominal' — confirma que el repositorio no contiene ninguno de los 4 patrones de secretos definidos en el evaluador"
+    },
+    {
+      "command": "python tools/course_public_evaluator.py --week 03 --mode verify (tras introducir tmp-security-check/fake-secret-demo.txt con una clave AWS ficticia)",
+      "result": "secret_scan: fail, hits=['tmp-security-check/fake-secret-demo.txt:aws_access_key']",
+      "evidence": "reports/week-03/security.json, check 'secret-scan-falla-controlada' — demuestra que la comprobación detecta un incumplimiento real (patrón AKIA[0-9A-Z]{16}) sin ocultarlo, y que tras eliminar el archivo el resultado vuelve a pass"
+    }
+  ]
+}

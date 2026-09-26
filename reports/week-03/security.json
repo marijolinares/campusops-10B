@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "week": 3,
+  "commitSha": "afcd44a24c2bb1c7fbe6aa5a1032c6c0823ffeb5",
+  "generatedAt": "2026-09-21T21:21:41-06:00",
+  "checks": [
+    {
+      "id": "secret-scan-nominal",
+      "status": "pass",
+      "scenarioType": "nominal",
+      "command": "python tools/course_public_evaluator.py --week 03 --mode verify",
+      "evidence": "El check 'secret_scan' reporta status pass con hits=[], confirmando que el repositorio no contiene patrones de secretos (private_key, github_token, aws_access_key, public_secret_name) definidos en course_public_evaluator.py. Esto respalda el control C-04 del modelo de amenazas (T-04 — Exponer credenciales)."
+    },
+    {
+      "id": "secret-scan-falla-controlada",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "python tools/course_public_evaluator.py --week 03 --mode verify",
+      "evidence": "Se creó temporalmente el archivo tmp-security-check/fake-secret-demo.txt con una cadena ficticia que sigue el patrón aws_access_key (prefijo de 4 letras mayúsculas reservado por AWS seguido de 16 caracteres alfanuméricos en mayúsculas), sin corresponder a ninguna credencial real. Al ejecutar el comando, 'secret_scan' reportó status fail identificando el archivo tmp-security-check/fake-secret-demo.txt bajo la categoría aws_access_key, demostrando que la comprobación detecta un incumplimiento real y no lo oculta. Se eliminó el archivo (Remove-Item -Recurse -Force tmp-security-check) y se volvió a ejecutar el comando, confirmando 'secret_scan' con status pass y hits=[]."
+    }
+  ]
+}
