@@ -6,7 +6,7 @@
     {
       "studentId": "german.martinez",
       "commitShas": [
-        "650757f856a6354db285a18f23a4740b0625457c"
+        "9486727cd3538ebfaf643d7226d1cb39b8a8ee56"
       ],
       "files": [
         "docs/security-controls.md"
@@ -23,7 +23,7 @@
     {
       "studentId": "irvin.martinez",
       "commitShas": [
-        "650757f856a6354db285a18f23a4740b0625457c"
+        "9486727cd3538ebfaf643d7226d1cb39b8a8ee56"
       ],
       "files": [
         "src/course-evaluation/index.ts",
@@ -41,7 +41,7 @@
     {
       "studentId": "maria.linares",
       "commitShas": [
-        "650757f856a6354db285a18f23a4740b0625457c"
+        "9486727cd3538ebfaf643d7226d1cb39b8a8ee56"
       ],
       "files": [
         "evidence/week-04/engineering.json"
