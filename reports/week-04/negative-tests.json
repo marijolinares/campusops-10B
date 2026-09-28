@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "week": 4,
+  "commitSha": "7cf6d22ae22de147f47dd948697e4ca886680f85",
+  "generatedAt": "2026-09-26T00:00:00-06:00",
+  "checks": [
+    {
+      "id": "redact-telemetry-nominal",
+      "status": "pass",
+      "scenarioType": "nominal",
+      "command": "npx jest course-tests/team/week-04-negative-redaction.test.ts",
+      "evidence": "El test 'normal telemetry log never contains raw sensitive values' arma un objeto de log anidado con authorization, technicianId, displayName, email, location, latitude, longitude, photos e internalComments reales, lo pasa por redactForTelemetry y serializa el resultado con JSON.stringify. Ninguno de los valores originales aparece en el string resultante; solo aparece '[REDACTED]' en esas posiciones. Los campos técnicos incidentId, correlationId y durationMs se conservan intactos, cumpliendo el contrato de docs/CAMPUSOPS_API.md."
+    },
+    {
+      "id": "redact-telemetry-error-path",
+      "status": "pass",
+      "scenarioType": "boundary",
+      "command": "npx jest course-tests/team/week-04-negative-redaction.test.ts",
+      "evidence": "El test 'error-path context never contains raw sensitive values either' simula el contexto de un error 409 de asignación (reporterId, assignedTechnicianId, assignmentHistory y refreshToken reales dentro de context). Tras redactForTelemetry, el string serializado no contiene ni el id del técnico ni el refreshToken; error, status y attempt se conservan para depuración. Esto demuestra que la sanitización cubre también los caminos de error, no solo los logs de éxito."
+    },
+    {
+      "id": "redact-telemetry-mutation-y-listas",
+      "status": "pass",
+      "scenarioType": "nominal",
+      "command": "npx jest course-tests/team/week-04-negative-redaction.test.ts",
+      "evidence": "Dos pruebas adicionales confirman: (1) el objeto original no se muta — se compara con una copia profunda tomada antes de la llamada y son iguales después; (2) un arreglo de registros de telemetría (no solo un objeto suelto) también queda sanitizado por completo al recorrerlo con redactForTelemetry."
+    },
+    {
+      "id": "redact-telemetry-falla-controlada",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest course-tests/team/week-04-negative-redaction.test.ts",
+      "evidence": "Se quitó temporalmente 'technicianid' del conjunto SENSITIVE_KEYS en src/course-evaluation/index.ts. Al correr la suite, 2 de 5 pruebas fallaron mostrando el valor real 'technician-1' sin redactar dentro del JSON serializado. Se restauró 'technicianid' en SENSITIVE_KEYS y se volvió a correr la suite, confirmando 5/5 pruebas en verde. Esto demuestra que las pruebas negativas detectan una fuga real y no están maquilladas para pasar siempre."
+    }
+  ]
+}

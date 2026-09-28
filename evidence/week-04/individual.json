@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "week": 4,
+  "teamId": "campusops-team",
+  "members": [
+    {
+      "studentId": "3523110247",
+      "commitShas": [
+        "7cf6d22ae22de147f47dd948697e4ca886680f85",
+        "d3ec3c802fd007bf631da50c531da3208140f52f"
+      ],
+      "files": [
+        "src/course-evaluation/index.ts",
+        "course-tests/team/week-04-negative-redaction.test.ts",
+        "reports/week-04/negative-tests.json"
+      ],
+      "tests": [
+        "npx jest course-tests/public/week-04.test.ts course-tests/team/week-04-negative-redaction.test.ts"
+      ],
+      "reviews": [],
+      "prediction": "Antes de implementar esperaba que bastara con sustituir el valor de cada clave sensible por '[REDACTED]' sin recorrer arreglos ni objetos anidados; al revisar docs/CAMPUSOPS_API.md confirmé que también hacía falta normalizar las claves (minúsculas, sin guiones ni guion bajo) para cubrir variantes como access_token o ACCESS-TOKEN.",
+      "command": "npx jest course-tests/public/week-04.test.ts course-tests/team/week-04-negative-redaction.test.ts",
+      "observedResult": "Las 6 pruebas pasaron (1 pública + 5 propias). Además, al quitar temporalmente 'technicianid' de SENSITIVE_KEYS como prueba controlada, 2 de las 5 pruebas fallaron mostrando el valor real 'technician-1' sin redactar en el JSON serializado, confirmando que las pruebas detectan una fuga real y no solo pasan de forma automática.",
+      "explanation": "Implementé redactForTelemetry en src/course-evaluation/index.ts: recorre objetos y listas recursivamente sin mutar la entrada, normaliza las claves antes de compararlas contra el conjunto de campos sensibles del contrato (authorization, password, token, accessToken, refreshToken, email, displayName, name, userId, reporterId, technicianId, assignedTechnicianId, location, latitude, longitude, photos, evidence, internalComments, assignmentHistory), y sustituye el valor completo por '[REDACTED]' sin recorrer su contenido cuando la clave es sensible. Escribí 5 pruebas negativas en course-tests/team/week-04-negative-redaction.test.ts que confirman la ausencia de valores reales (no solo la presencia de '[REDACTED]') tanto en un log normal como en un contexto de error, además de probar claves con formatos mixtos, no mutación del objeto original, y sanitización de una lista de registros. Documenté todo en reports/week-04/negative-tests.json, incluyendo una falla controlada real como evidencia de que las pruebas no están maquilladas."
+    }
+  ]
+}
