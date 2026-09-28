@@ -14,7 +14,7 @@ function pending(name: string): never {
 
 const REDACTED = '[REDACTED]' as const;
 
- main
+
 const SENSITIVE_KEYS = new Set([
   'authorization',
   'password',
