@@ -13,6 +13,8 @@
  * in-memory only (acceptable for dev, not production).
  */
 
+import * as SecureStore from 'expo-secure-store';
+
 import { redactForTelemetry } from '../course-evaluation';
 
 // ---------------------------------------------------------------------------
@@ -44,6 +46,24 @@ export function createInMemorySecureStorage(): SecureStoragePort {
     },
     async deleteItem(key: string) {
       memoryStore.delete(key);
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Real adapter — backed by expo-secure-store (Keychain on iOS, Keystore on Android)
+// ---------------------------------------------------------------------------
+
+export function createSecureStorage(): SecureStoragePort {
+  return {
+    async setItem(key: string, value: string) {
+      await SecureStore.setItemAsync(key, value);
+    },
+    async getItem(key: string) {
+      return SecureStore.getItemAsync(key);
+    },
+    async deleteItem(key: string) {
+      await SecureStore.deleteItemAsync(key);
     },
   };
 }
