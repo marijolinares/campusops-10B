@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "week": 4,
+  "commitSha": "9486727cd3538ebfaf643d7226d1cb39b8a8ee56",
+  "decision": "Utilizamos SecureStore (basado en el sistema nativo) para almacenar las credenciales/sesiones y un mecanismo de logs sanitizado por redactForTelemetry.",
+  "alternatives": [
+    "Guardar tokens en AsyncStorage sin cifrar (menor seguridad).",
+    "Evitar los logs técnicos en la app (imposibilita la depuración de errores en producción)."
+  ],
+  "tradeoff": "Beneficio: protección de sesión a nivel de sistema que resiste acceso a nivel de aplicación. Costo: SecureStore no funciona con cifrado real en Expo Go para web (usa fallback en memoria/localStorage), lo cual es aceptable dado que el objetivo principal es móvil.",
+  "requirementIds": [
+    "AC-02",
+    "AC-03",
+    "AC-04"
+  ],
+  "verification": [
+    {
+      "command": "npx jest course-tests/public/week-04.test.ts",
+      "result": "pass",
+      "evidence": "Las pruebas pasan confirmando que la función de sanitización redacta correctamente campos como accessToken o latitude en [REDACTED]."
+    }
+  ]
+}

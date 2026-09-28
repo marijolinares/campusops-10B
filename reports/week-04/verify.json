@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "week": 4,
+  "mode": "verify",
+  "commitSha": "650757f856a6354db285a18f23a4740b0625457c",
+  "evaluatedAt": "2026-09-26T13:14:35.020444+00:00",
+  "status": "fail",
+  "checks": [
+    {
+      "id": "base_files",
+      "status": "pass",
+      "detail": "missing=[]"
+    },
+    {
+      "id": "react_native_profile",
+      "status": "pass",
+      "detail": "missing packages=[]"
+    },
+    {
+      "id": "toolchain_scripts",
+      "status": "pass",
+      "detail": "missing scripts=[]"
+    },
+    {
+      "id": "workflow_integrity",
+      "status": "pass",
+      "detail": "bypass markers=[]"
+    },
+    {
+      "id": "secret_scan",
+      "status": "pass",
+      "detail": "hits=[]"
+    },
+    {
+      "id": "toolchain_1",
+      "status": "fail",
+      "detail": "npm run typecheck\n[WinError 2] El sistema no puede encontrar el archivo especificado"
+    },
+    {
+      "id": "toolchain_2",
+      "status": "fail",
+      "detail": "npm run lint\n[WinError 2] El sistema no puede encontrar el archivo especificado"
+    },
+    {
+      "id": "toolchain_3",
+      "status": "fail",
+      "detail": "npm run audit:ci\n[WinError 2] El sistema no puede encontrar el archivo especificado"
+    },
+    {
+      "id": "toolchain_4",
+      "status": "fail",
+      "detail": "npm run test:smoke\n[WinError 2] El sistema no puede encontrar el archivo especificado"
+    }
+  ]
+}
