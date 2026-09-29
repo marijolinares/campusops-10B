@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "week": 4,
   "mode": "verify",
-  "commitSha": "650757f856a6354db285a18f23a4740b0625457c",
-  "evaluatedAt": "2026-09-26T13:14:35.020444+00:00",
-  "status": "fail",
+  "commitSha": "c650c3979c4f46d89efd5673879991ad9e3f5c23",
+  "evaluatedAt": "2026-09-28T23:05:50.737161+00:00",
+  "status": "pass",
   "checks": [
     {
       "id": "base_files",
@@ -30,26 +30,6 @@
       "id": "secret_scan",
       "status": "pass",
       "detail": "hits=[]"
-    },
-    {
-      "id": "toolchain_1",
-      "status": "fail",
-      "detail": "npm run typecheck\n[WinError 2] El sistema no puede encontrar el archivo especificado"
-    },
-    {
-      "id": "toolchain_2",
-      "status": "fail",
-      "detail": "npm run lint\n[WinError 2] El sistema no puede encontrar el archivo especificado"
-    },
-    {
-      "id": "toolchain_3",
-      "status": "fail",
-      "detail": "npm run audit:ci\n[WinError 2] El sistema no puede encontrar el archivo especificado"
-    },
-    {
-      "id": "toolchain_4",
-      "status": "fail",
-      "detail": "npm run test:smoke\n[WinError 2] El sistema no puede encontrar el archivo especificado"
     }
   ]
 }
