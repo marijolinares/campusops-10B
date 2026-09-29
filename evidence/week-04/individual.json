@@ -42,7 +42,7 @@
     },
     {
       "studentId": "3523110094",
-      "commitShas": ["b9594a2cf316136a17406b4db52b25d0b2a8e2d9"],
+      "commitShas": ["fc191db99a91335733ebb90b2d293c49b20f6021"],
       "files": [
         "src/infrastructure/secureStorage.ts",
         "reports/week-04/secret-scan.json",

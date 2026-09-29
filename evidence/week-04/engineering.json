@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "week": 4,
-  "commitSha": "b9594a2cf316136a17406b4db52b25d0b2a8e2d9",
+  "commitSha": "fc191db99a91335733ebb90b2d293c49b20f6021",
   "decision": "Utilizamos SecureStore (basado en el sistema nativo) para almacenar las credenciales/sesiones y un mecanismo de logs sanitizado por redactForTelemetry.",
   "alternatives": [
     "Guardar tokens en AsyncStorage sin cifrar (menor seguridad).",
