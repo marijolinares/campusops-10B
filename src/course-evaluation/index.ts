@@ -62,8 +62,35 @@ export function redactForTelemetry(input: unknown): unknown {
   return redactValue(input);
 }
 
-export function parseRemoteResource(_input: unknown): ParseResult {
-  return pending('parseRemoteResource');
+const CONTRACT_ERROR: ParseResult = { ok: false, error: 'contract' };
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim() !== '';
+}
+
+function isPlainObject(value: unknown): value is JsonObject {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+/**
+ * Valida el sobre del DTO de incidencia { id, version, status, payload }.
+ * - id y status: texto no vacío.
+ * - version: entero no negativo (un string numérico como '3' se rechaza).
+ * - payload: objeto o null. null es un caso legítimo: no se inventan datos.
+ * Los campos extra del sobre se ignoran (compatibilidad hacia adelante).
+ */
+export function parseRemoteResource(input: unknown): ParseResult {
+  if (!isPlainObject(input)) return CONTRACT_ERROR;
+  const { id, version, status, payload } = input;
+
+  if (!isNonEmptyString(id)) return CONTRACT_ERROR;
+  if (!isNonEmptyString(status)) return CONTRACT_ERROR;
+  if (typeof version !== 'number' || !Number.isInteger(version) || version < 0) {
+    return CONTRACT_ERROR;
+  }
+  if (payload !== null && !isPlainObject(payload)) return CONTRACT_ERROR;
+
+  return { ok: true, value: { id, version, status, payload } };
 }
 
 export function coordinateRefresh(_events: readonly AuthEvent[]): Readonly<{
