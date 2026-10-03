@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "week": 5,
+  "commitSha": "9fc19eccea5c21e586a285158325448bda59a9b3",
+  "generatedAt": "2026-10-03T00:00:00-06:00",
+  "checks": [
+    {
+      "id": "parse-remote-resource-nominal",
+      "status": "pass",
+      "scenarioType": "nominal",
+      "command": "npx jest course-tests/public/week-05.test.ts course-tests/team/week-05-contract.test.ts",
+      "evidence": "Un DTO válido { id, version, status, payload objeto } devuelve ok:true y value con exactamente los cuatro campos del sobre. Un campo extra ('ignored') se ignora y no aparece en value, lo que mantiene la compatibilidad hacia adelante que pide docs/CAMPUSOPS_API.md."
+    },
+    {
+      "id": "parse-remote-resource-payload-null",
+      "status": "pass",
+      "scenarioType": "boundary",
+      "command": "npx jest course-tests/team/week-05-contract.test.ts",
+      "evidence": "Con payload: null la función devuelve ok:true y value.payload sigue siendo null. La prueba compara el resultado completo con toEqual, así que confirma que no se inventó ningún objeto ni valor por defecto. Un payload null es una respuesta legítima del servidor y no autoriza a fabricar datos."
+    },
+    {
+      "id": "parse-remote-resource-rechazos",
+      "status": "pass",
+      "scenarioType": "negative",
+      "command": "npx jest course-tests/team/week-05-contract.test.ts",
+      "evidence": "Se rechazan con { ok: false, error: 'contract' }: id vacío, id de solo espacios, id que no es texto, status vacío, version como string ('3'), decimal (1.5), negativa (-1), NaN y ausente, payload ausente, arreglo o string, y entradas que no son objeto (null, undefined, texto, número, arreglo). Son 17 casos y ninguno lanza excepción."
+    },
+    {
+      "id": "parse-remote-resource-falla-controlada",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest course-tests/public/week-05.test.ts course-tests/team/week-05-contract.test.ts",
+      "evidence": "Se cambió temporalmente la validación de version en src/course-evaluation/index.ts para aceptar cualquier number (se quitó Number.isInteger y version < 0). Al correr la suite fallaron 3 de 24 pruebas (version decimal, negativa y NaN), mientras que la prueba pública siguió pasando porque solo cubre version como string. Se restauró la línea original y la suite volvió a 24/24 en verde. Esto demuestra que las pruebas propias detectan una validación debilitada que la prueba pública no ve."
+    }
+  ]
+}
