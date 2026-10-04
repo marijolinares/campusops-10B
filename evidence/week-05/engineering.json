@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "week": 5,
+  "commitSha": "PENDIENTE_SHA",
+  "decision": "Separar el cliente cloud en tres límites: (1) el DTO remoto se valida con parseRemoteResource en la capa de cliente (src/api/incidentClient.ts) antes de usarse; (2) src/api/incidentMapper.ts convierte el DTO ya validado en el objeto de dominio Incident, así la UI y el dominio nunca ven el formato del servidor; (3) los fallos (payload inválido, timeout, error 500) se representan con errores tipados definidos en src/api/clientErrors.ts, no con excepciones genéricas. La UI solo accede al cliente a través de src/composition/root.ts, sin HTTP directo.",
+  "alternatives": [
+    "Usar directamente el JSON del servidor en pantallas y dominio: menos código, pero cualquier respuesta incompleta o malformada llegaría hasta la UI y un cambio del servidor obligaría a tocar las pantallas.",
+    "Lanzar Error genérico con un mensaje de texto ante cualquier fallo: más simple, pero la app no podría distinguir un payload inválido de un timeout o de un error 500 para decidir qué mostrar o si reintentar."
+  ],
+  "tradeoff": "Beneficio: una respuesta inválida se rechaza en el borde sin romper la app, los tres tipos de fallo se distinguen y el cliente se prueba con respuestas simuladas sin depender de un servicio real. Costo: más archivos y una capa de mapeo que hay que mantener sincronizada con el contrato del servidor.",
+  "requirementIds": ["AC-02", "AC-03", "AC-04"],
+  "verification": [
+    {
+      "command": "npx jest course-tests/public/week-05.test.ts",
+      "result": "PASS: 5 de 5 pruebas. Se rechazan id vacío, version como texto y entrada nula; se acepta payload nulo con campos extra.",
+      "evidence": "reports/week-05/contract-tests.json"
+    },
+    {
+      "command": "npx jest course-tests/team --no-coverage",
+      "result": "PASS: 4 suites, 65 pruebas, sin acceso a Internet público.",
+      "evidence": "reports/week-05/failure-matrix.json y course-tests/team/week-05-client.test.ts"
+    }
+  ]
+}
