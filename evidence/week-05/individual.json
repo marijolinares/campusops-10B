@@ -30,7 +30,7 @@
       "command": "npx jest --no-watchman --ci --runInBand course-tests/team/week-05-client.test.ts course-tests/team/week-05-backend-variants.test.ts",
       "observedResult": "Las 41 pruebas pasaron (33 con un doble de fetch y 8 contra el backend local 127.0.0.1 con las variantes success, nullable, malformed, server_error y slow); el conjunto completo del equipo (team, week-05 pública y smoke) dio 71/71. Falla controlada: se quitó temporalmente la comprobación de categoría en src/api/incidentMapper.ts y falló 1 de 41 pruebas (la de 'category desconocida', que dejó de producir error de contrato); se restauró el archivo con git checkout y volvió a 71/71. tsc y eslint no reportaron errores.",
       "explanation": "Implementé la capa de cliente de incidencias separada de la UI. incidentClient.ts hace login, lista, detalle y creación con Idempotency-Key; aplica timeout con AbortController y devuelve un ClientResult en vez de lanzar excepciones. Los errores tienen kind distinguible (timeout, network, server, rate_limited, unauthorized, forbidden, not_found, conflict, rejected, malformed, contract) con mensajes fijos que no incluyen tokens ni datos. Cada respuesta pasa primero por parseRemoteResource (DTO) y luego por mapIncidentDto (dominio): payload null produce null/emptyCount y no se inventan datos, mientras que un objeto incompleto produce el error contract. remoteIncidentRepository.ts adapta el cliente al puerto IncidentRepository y convierte el error en IncidentClientError para que las pantallas muestren estados de error y vacío sin hacer HTTP. En root.ts el backend se usa solo si EXPO_PUBLIC_COURSE_BACKEND_URL está definida, para no romper el smoke test. Los logs pasan por redactForTelemetry (Irvin). Documenté el contrato en docs/api-contract.md y los casos de falla con resultado observado en reports/week-05/failure-matrix.json."
-        },
+    },
     {
       "studentId": "3523110247",
       "commitShas": [
@@ -50,6 +50,28 @@
       "command": "npx jest course-tests/public/week-05.test.ts course-tests/team/week-05-contract.test.ts",
       "observedResult": "Las 24 pruebas pasaron. Falla controlada: se quitó temporalmente Number.isInteger y version < 0 en parseRemoteResource y fallaron 3 de 24 pruebas (version decimal, negativa y NaN); la prueba pública siguió pasando. Se restauró la línea y volvió a 24/24.",
       "explanation": "Implementé parseRemoteResource, que valida el sobre { id, version, status, payload }: id y status son texto no vacío, version es un entero no negativo y payload es objeto o null. Un payload null es legítimo y no se inventan datos. Los campos extra se ignoran y cualquier otro caso devuelve { ok: false, error: 'contract' } sin lanzar excepciones."
+    },
+    {
+      "studentId": "3523110094",
+      "commitShas": [
+        "eef02aab513ff31090a0f3c93756cbb64e136988"
+      ],
+      "files": [
+        ".github/workflows/week-05-cliente-cloud-feedback.yml",
+        "evidence/week-05/engineering.json"
+      ],
+      "tests": [
+        "npm run typecheck",
+        "npx jest course-tests/public/week-05.test.ts",
+        "npx jest course-tests/team --no-coverage"
+      ],
+      "reviews": [
+        "Integración y revisión del trabajo de German (cliente, contrato, matriz de fallas) y de Irvin (parseRemoteResource): confirmé que incidentClient.ts usa parseRemoteResource y que no se modificaron las pruebas públicas."
+      ],
+      "prediction": "Antes de integrar esperaba que el workflow de la semana 5 no trajera fetch-depth: 0, igual que en las semanas 2 y 4, lo que impediría validar commitSha en CI aunque los reportes fueran correctos.",
+      "command": "Select-String -Path .github\\workflows\\week-05-cliente-cloud-feedback.yml -Pattern fetch-depth",
+      "observedResult": "Antes del cambio el comando no devolvió coincidencias, confirmando el hueco. Tras agregar fetch-depth: 0 al paso de checkout, el workflow lo muestra. npm run typecheck sin errores, la prueba pública de la semana 5 pasó 5 de 5 y el conjunto del equipo pasó 65 de 65.",
+      "explanation": "Integré el trabajo del equipo: corregí el paso de checkout del workflow para que CI pueda validar el commitSha del commit padre, redacté engineering.json con la decisión sobre el límite entre DTO, dominio y errores (verificando que el cliente consume parseRemoteResource), ejecuté typecheck y las pruebas públicas y del equipo, y fijé los SHA de los reportes al cierre."
     }
   ]
 }

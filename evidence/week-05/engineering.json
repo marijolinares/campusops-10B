@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "week": 5,
-  "commitSha": "PENDIENTE_SHA",
+  "commitSha": "e4eed7f1d1f024fe581a2f78649f2a7a4f7e1f40",
   "decision": "Separar el cliente cloud en tres límites: (1) el DTO remoto se valida con parseRemoteResource en la capa de cliente (src/api/incidentClient.ts) antes de usarse; (2) src/api/incidentMapper.ts convierte el DTO ya validado en el objeto de dominio Incident, así la UI y el dominio nunca ven el formato del servidor; (3) los fallos (payload inválido, timeout, error 500) se representan con errores tipados definidos en src/api/clientErrors.ts, no con excepciones genéricas. La UI solo accede al cliente a través de src/composition/root.ts, sin HTTP directo.",
   "alternatives": [
     "Usar directamente el JSON del servidor en pantallas y dominio: menos código, pero cualquier respuesta incompleta o malformada llegaría hasta la UI y un cambio del servidor obligaría a tocar las pantallas.",
@@ -22,3 +22,4 @@
     }
   ]
 }
+

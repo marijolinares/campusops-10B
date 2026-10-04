@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "week": 5,
-  "commitSha": "9fc19eccea5c21e586a285158325448bda59a9b3",
+  "commitSha": "e4eed7f1d1f024fe581a2f78649f2a7a4f7e1f40",
   "generatedAt": "2026-10-03T00:00:00-06:00",
   "checks": [
     {
@@ -21,7 +21,7 @@
     {
       "id": "parse-remote-resource-rechazos",
       "status": "pass",
-      "scenarioType": "negative",
+      "scenarioType": "failure",
       "command": "npx jest course-tests/team/week-05-contract.test.ts",
       "evidence": "Se rechazan con { ok: false, error: 'contract' }: id vacío, id de solo espacios, id que no es texto, status vacío, version como string ('3'), decimal (1.5), negativa (-1), NaN y ausente, payload ausente, arreglo o string, y entradas que no son objeto (null, undefined, texto, número, arreglo). Son 17 casos y ninguno lanza excepción."
     },
@@ -34,3 +34,4 @@
     }
   ]
 }
+
