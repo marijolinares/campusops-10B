@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "week": 5,
+  "commitSha": "14534cc17677f1a19c5ca9a7f3f84e060ddd2338",
+  "generatedAt": "2026-10-03T22:21:00-06:00",
+  "checks": [
+    {
+      "id": "failure-invalid-json-malformed",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest --no-watchman --ci --runInBand course-tests/team/week-05-backend-variants.test.ts -t malformed",
+      "evidence": "Esperado: con X-Course-Scenario: malformed el cuerpo '{\"items\": [}' no es JSON y el cliente devuelve { ok: false, error.kind: 'malformed' } sin lanzar. Observado: la prueba pasa contra el backend local 127.0.0.1; no se entregan datos a la UI."
+    },
+    {
+      "id": "failure-invalid-object-contract",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest --no-watchman --ci course-tests/team/week-05-client.test.ts -t \"objeto malformado\"",
+      "evidence": "Esperado: JSON valido pero con version en texto, payload arreglo, category o status desconocidos, description vacia o sobre sin version se rechazan con error.kind 'contract'. Observado: los 7 casos pasan; ninguno produce datos de dominio. Una lista con un elemento corrupto se rechaza completa."
+    },
+    {
+      "id": "failure-null-payload-not-error",
+      "status": "pass",
+      "scenarioType": "boundary",
+      "command": "npx jest --no-watchman --ci --runInBand course-tests/team/week-05-backend-variants.test.ts -t nullable",
+      "evidence": "Esperado: con el escenario nullable el detalle devuelve { ok: true, value: null } y la lista cuenta emptyCount > 0; no es error ni se inventan campos. Observado: la prueba pasa contra el backend local; payload nulo se distingue del error 'contract'."
+    },
+    {
+      "id": "failure-timeout",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest --no-watchman --ci --runInBand course-tests/team/week-05-backend-variants.test.ts -t \"slow con timeout\"",
+      "evidence": "Esperado: el escenario slow tarda 1200 ms; con timeoutMs=300 el cliente devuelve error.kind 'timeout'; con timeoutMs=4000 la misma solicitud tiene exito. Observado: ambas pruebas pasan. En week-05-client.test.ts un fetch que nunca responde termina en 'timeout' y la senal AbortSignal queda abortada."
+    },
+    {
+      "id": "failure-server-error-500",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest --no-watchman --ci --runInBand course-tests/team/week-05-backend-variants.test.ts -t server_error",
+      "evidence": "Esperado: HTTP 500 del escenario server_error produce { ok: false, error: { kind: 'server', status: 500 } }, distinguible de timeout, malformed y contract. Observado: la prueba pasa; el repositorio remoto lo propaga como IncidentClientError con kind 'server' (week-05-client.test.ts)."
+    },
+    {
+      "id": "failure-network-and-safe-logs",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest --no-watchman --ci course-tests/team/week-05-client.test.ts -t \"red|logs sanitizados\"",
+      "evidence": "Esperado: un fallo de conexion devuelve kind 'network' sin filtrar el texto de la excepcion original, y los eventos de log no contienen token, descripcion ni actor. Observado: ambas pruebas pasan; el mensaje 'secret' de la excepcion simulada no aparece en el resultado."
+    }
+  ]
+}

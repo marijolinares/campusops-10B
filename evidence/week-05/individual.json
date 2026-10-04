@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "week": 5,
+  "teamId": "campusops-team",
+  "members": [
+    {
+      "studentId": "3523110316",
+      "commitShas": [
+        "14534cc17677f1a19c5ca9a7f3f84e060ddd2338",
+        "cedcab1be8ea94ac69799dda71a901921f9455fc"
+      ],
+      "files": [
+        "src/api/incidentClient.ts",
+        "src/api/clientErrors.ts",
+        "src/api/incidentMapper.ts",
+        "src/infrastructure/remoteIncidentRepository.ts",
+        "src/composition/root.ts",
+        "src/ui/screens/IncidentListScreen.tsx",
+        "src/ui/screens/IncidentDetailScreen.tsx",
+        "docs/api-contract.md",
+        "reports/week-05/failure-matrix.json"
+      ],
+      "tests": [
+        "npx jest --no-watchman --ci --runInBand course-tests/team/week-05-client.test.ts course-tests/team/week-05-backend-variants.test.ts"
+      ],
+      "reviews": [
+        "Revisión de que parseRemoteResource (Irvin) no se modificara y de que la capa de cliente lo consuma como única validación del sobre remoto"
+      ],
+      "prediction": "Antes de implementar esperaba que bastara con validar el sobre con parseRemoteResource. Al leer course-backend/campusops.mjs vi que el sobre válido puede traer un payload sin los campos que usa la app (category, description, location) y que payload null es un caso legítimo del escenario nullable; por eso predije que hacía falta una segunda validación DTO a dominio y que el payload nulo debía devolver null en vez de error. También predije que el escenario slow (1200 ms) debía fallar con timeout si el límite era menor y tener éxito si era mayor.",
+      "command": "npx jest --no-watchman --ci --runInBand course-tests/team/week-05-client.test.ts course-tests/team/week-05-backend-variants.test.ts",
+      "observedResult": "Las 41 pruebas pasaron (33 con un doble de fetch y 8 contra el backend local 127.0.0.1 con las variantes success, nullable, malformed, server_error y slow); el conjunto completo del equipo (team, week-05 pública y smoke) dio 71/71. Falla controlada: se quitó temporalmente la comprobación de categoría en src/api/incidentMapper.ts y falló 1 de 41 pruebas (la de 'category desconocida', que dejó de producir error de contrato); se restauró el archivo con git checkout y volvió a 71/71. tsc y eslint no reportaron errores.",
+      "explanation": "Implementé la capa de cliente de incidencias separada de la UI. incidentClient.ts hace login, lista, detalle y creación con Idempotency-Key; aplica timeout con AbortController y devuelve un ClientResult en vez de lanzar excepciones. Los errores tienen kind distinguible (timeout, network, server, rate_limited, unauthorized, forbidden, not_found, conflict, rejected, malformed, contract) con mensajes fijos que no incluyen tokens ni datos. Cada respuesta pasa primero por parseRemoteResource (DTO) y luego por mapIncidentDto (dominio): payload null produce null/emptyCount y no se inventan datos, mientras que un objeto incompleto produce el error contract. remoteIncidentRepository.ts adapta el cliente al puerto IncidentRepository y convierte el error en IncidentClientError para que las pantallas muestren estados de error y vacío sin hacer HTTP. En root.ts el backend se usa solo si EXPO_PUBLIC_COURSE_BACKEND_URL está definida, para no romper el smoke test. Los logs pasan por redactForTelemetry (Irvin). Documenté el contrato en docs/api-contract.md y los casos de falla con resultado observado en reports/week-05/failure-matrix.json."
+    }
+  ]
+}
