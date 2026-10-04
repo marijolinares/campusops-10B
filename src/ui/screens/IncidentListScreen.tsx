@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Incident } from '../../domain/incident';
 import { listIncidents } from '../../composition/root';
+import { IncidentClientError } from '../../api/clientErrors';
 
 type Props = {
   onSelectIncident: (id: string) => void;
@@ -9,14 +10,28 @@ type Props = {
 
 export function IncidentListScreen({ onSelectIncident }: Props) {
   const [incidents, setIncidents] = useState<readonly Incident[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    listIncidents().then(setIncidents);
+    let active = true;
+    listIncidents()
+      .then((items) => {
+        if (active) setIncidents(items);
+      })
+      .catch((cause: unknown) => {
+        const message =
+          cause instanceof IncidentClientError ? cause.message : 'No se pudo cargar la lista.';
+        if (active) setError(message);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Incidencias</Text>
+      {error ? <Text testID="incident-list-error">{error}</Text> : null}
       <FlatList
         data={incidents}
         keyExtractor={(item) => item.id}
