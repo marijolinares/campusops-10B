@@ -30,6 +30,26 @@
       "command": "npx jest --no-watchman --ci --runInBand course-tests/team/week-05-client.test.ts course-tests/team/week-05-backend-variants.test.ts",
       "observedResult": "Las 41 pruebas pasaron (33 con un doble de fetch y 8 contra el backend local 127.0.0.1 con las variantes success, nullable, malformed, server_error y slow); el conjunto completo del equipo (team, week-05 pública y smoke) dio 71/71. Falla controlada: se quitó temporalmente la comprobación de categoría en src/api/incidentMapper.ts y falló 1 de 41 pruebas (la de 'category desconocida', que dejó de producir error de contrato); se restauró el archivo con git checkout y volvió a 71/71. tsc y eslint no reportaron errores.",
       "explanation": "Implementé la capa de cliente de incidencias separada de la UI. incidentClient.ts hace login, lista, detalle y creación con Idempotency-Key; aplica timeout con AbortController y devuelve un ClientResult en vez de lanzar excepciones. Los errores tienen kind distinguible (timeout, network, server, rate_limited, unauthorized, forbidden, not_found, conflict, rejected, malformed, contract) con mensajes fijos que no incluyen tokens ni datos. Cada respuesta pasa primero por parseRemoteResource (DTO) y luego por mapIncidentDto (dominio): payload null produce null/emptyCount y no se inventan datos, mientras que un objeto incompleto produce el error contract. remoteIncidentRepository.ts adapta el cliente al puerto IncidentRepository y convierte el error en IncidentClientError para que las pantallas muestren estados de error y vacío sin hacer HTTP. En root.ts el backend se usa solo si EXPO_PUBLIC_COURSE_BACKEND_URL está definida, para no romper el smoke test. Los logs pasan por redactForTelemetry (Irvin). Documenté el contrato en docs/api-contract.md y los casos de falla con resultado observado en reports/week-05/failure-matrix.json."
+        },
+    {
+      "studentId": "3523110247",
+      "commitShas": [
+        "9fc19eccea5c21e586a285158325448bda59a9b3",
+        "740122908a92f91166d96587cdf0b8f49cdafc46"
+      ],
+      "files": [
+        "src/course-evaluation/index.ts",
+        "course-tests/team/week-05-contract.test.ts",
+        "reports/week-05/contract-tests.json"
+      ],
+      "tests": [
+        "npx jest course-tests/public/week-05.test.ts course-tests/team/week-05-contract.test.ts"
+      ],
+      "reviews": [],
+      "prediction": "PEGA_AQUI_TU_FRASE",
+      "command": "npx jest course-tests/public/week-05.test.ts course-tests/team/week-05-contract.test.ts",
+      "observedResult": "Las 24 pruebas pasaron. Falla controlada: se quitó temporalmente Number.isInteger y version < 0 en parseRemoteResource y fallaron 3 de 24 pruebas (version decimal, negativa y NaN); la prueba pública siguió pasando. Se restauró la línea y volvió a 24/24.",
+      "explanation": "Implementé parseRemoteResource, que valida el sobre { id, version, status, payload }: id y status son texto no vacío, version es un entero no negativo y payload es objeto o null. Un payload null es legítimo y no se inventan datos. Los campos extra se ignoran y cualquier otro caso devuelve { ok: false, error: 'contract' } sin lanzar excepciones."
     }
   ]
 }
