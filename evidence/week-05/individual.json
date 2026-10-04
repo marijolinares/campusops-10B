@@ -46,7 +46,7 @@
         "npx jest course-tests/public/week-05.test.ts course-tests/team/week-05-contract.test.ts"
       ],
       "reviews": [],
-      "prediction": "PEGA_AQUI_TU_FRASE",
+      "prediction": "Esperaba que parseRemoteResource aceptara el DTO válido y el de payload null, ignorara los campos extra del sobre y rechazara con { ok: false, error: 'contract' } los casos con id o status vacíos, version no entera o negativa y payload que no fuera objeto ni null, sin lanzar excepciones.",
       "command": "npx jest course-tests/public/week-05.test.ts course-tests/team/week-05-contract.test.ts",
       "observedResult": "Las 24 pruebas pasaron. Falla controlada: se quitó temporalmente Number.isInteger y version < 0 en parseRemoteResource y fallaron 3 de 24 pruebas (version decimal, negativa y NaN); la prueba pública siguió pasando. Se restauró la línea y volvió a 24/24.",
       "explanation": "Implementé parseRemoteResource, que valida el sobre { id, version, status, payload }: id y status son texto no vacío, version es un entero no negativo y payload es objeto o null. Un payload null es legítimo y no se inventan datos. Los campos extra se ignoran y cualquier otro caso devuelve { ok: false, error: 'contract' } sin lanzar excepciones."
