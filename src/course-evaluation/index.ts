@@ -7,6 +7,8 @@ import type {
   SyncRecord,
 } from './contracts';
 import type { IncidentLocation } from '../campusops/contracts';
+import { canRetry, isStaleGeneration, transition, type SessionStatus } from '../domain/session';
+
 
 function pending(name: string): never {
   throw new Error(`${name} must be implemented in the assigned week`);
@@ -98,9 +100,69 @@ export function coordinateRefresh(_events: readonly AuthEvent[]): Readonly<{
   activeGeneration: number | null;
   refreshCalls: number;
   retriedRequestIds: readonly string[];
-  persistedToken: string | null;
+    persistedToken: string | null;
 }> {
-  return pending('coordinateRefresh');
+  // Las decisiones (transiciones, límite de reintentos, 401 tardío) vienen de
+  // src/domain/session.ts; aquí sólo se coordinan los eventos.
+  let state = 'authenticated' as SessionStatus;
+  let activeGeneration = 0;
+  let persistedToken: string | null = null;
+  let refreshCalls = 0;
+  let waiting: string[] = [];
+  const attempts = new Map<string, number>();
+  const retried: string[] = [];
+
+  const retry = (id: string) => {
+    attempts.set(id, (attempts.get(id) ?? 0) + 1);
+    retried.push(id);
+  };
+
+  _events.forEach((event, index) => {
+    const id = event.requestId ?? `request-${index}`;
+    switch (event.type) {
+      case 'request401': {
+        if (state === 'unauthenticated') return; // sesión cerrada: no se reintenta
+        if (!canRetry(attempts.get(id) ?? 0)) return; // ya se reintentó el máximo
+        if (isStaleGeneration(event.generation ?? 0, activeGeneration)) {
+          retry(id); // 401 tardío: sólo reintenta con el token nuevo
+          return;
+        }
+        if (!waiting.includes(id)) waiting.push(id);
+        state = transition(state, 'unauthorized');
+        if (state === 'expired') {
+          state = transition(state, 'refreshStarted'); // sólo la primera inicia el refresh
+          refreshCalls += 1;
+        }
+        return;
+      }
+      case 'refreshSucceeded': {
+        if (state !== 'refreshing') return; // éxito obsoleto o sin refresh en curso
+        state = transition(state, 'refreshSucceeded');
+        activeGeneration = event.generation ?? activeGeneration + 1;
+        persistedToken = event.token ?? null;
+        waiting.forEach(retry);
+        waiting = [];
+        return;
+      }
+      case 'refreshFailed':
+      case 'logout': {
+        const next = transition(state, event.type);
+        if (next !== 'unauthenticated') return;
+        state = next;
+        persistedToken = null;
+        waiting = [];
+        return;
+      }
+    }
+  });
+
+  return {
+    status: state === 'unauthenticated' ? 'anonymous' : 'authenticated',
+    activeGeneration: state === 'unauthenticated' ? null : activeGeneration,
+    refreshCalls,
+    retriedRequestIds: retried,
+    persistedToken,
+  };
 }
 
 export function resolveSync(
