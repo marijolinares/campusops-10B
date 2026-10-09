@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "week": 6,
+  "teamId": "campusops-team",
+  "members": [
+    {
+      "studentId": "3523110247",
+      "commitShas": [
+        "9e6ac69c914e0b34af5025db86453c32f57ce063",
+        "98652fb60d729fdcf88eac1f095c8f91e7d62076"
+      ],
+      "files": [
+        "src/course-evaluation/index.ts",
+        "src/domain/authorization.ts",
+        "course-tests/team/week-06-coordinate-refresh.test.ts",
+        "course-tests/team/week-06-authorization.test.ts"
+      ],
+      "tests": [
+        "npx jest course-tests/public/week-06.test.ts",
+        "npx jest course-tests/team/week-06-coordinate-refresh.test.ts course-tests/team/week-06-authorization.test.ts"
+      ],
+      "reviews": [
+        "Revisé src/domain/session.ts de German: confirmé que transition, canRetry e isStaleGeneration cubren el 401 tardío, el límite de un reintento y el cierre de sesión, y que coordinateRefresh las usa sin copiar su lógica."
+      ],
+      "prediction": "Esperaba que, con 3 errores 401 juntos, coordinateRefresh contara un solo refresh y reintentara cada petición una vez al llegar refreshSucceeded. También esperaba que un 401 de una generación vieja solo se reintentara con el token nuevo, sin iniciar otro refresh, y que tras refreshFailed o logout no quedara token ni reintentos pendientes.",
+      "command": "npx jest course-tests/public/week-06.test.ts course-tests/team/week-06-coordinate-refresh.test.ts course-tests/team/week-06-authorization.test.ts",
+      "observedResult": "La prueba pública de la semana 6 pasó 2 de 2. Mis pruebas de coordinateRefresh pasaron 6 de 6 (3 errores 401 juntos, refresh fallido, 401 tardío, reintento máximo, logout y tokens redactados en logs) y las de permisos 3 de 3. npm run typecheck y npm run lint no reportaron errores.",
+      "explanation": "Implementé coordinateRefresh en src/course-evaluation/index.ts. La función recorre los eventos y delega las decisiones en src/domain/session.ts: transition decide el estado de la sesión, canRetry limita cada petición a un reintento e isStaleGeneration detecta un 401 tardío. Así el primer 401 inicia un solo refresh, los demás esperan, y al llegar refreshSucceeded se reintenta cada petición una vez; con refreshFailed o logout se borra el token y no se reintenta nada. También creé src/domain/authorization.ts con canPerform, que aplica los permisos por rol de docs/CAMPUSOPS.md: el reportante crea y consulta lo suyo, el técnico solo opera lo asignado a él y el coordinador cierra y reabre. Las pruebas cubren refresh fallido, 401 tardío, logout, límite de reintento y que los tokens no aparezcan en logs."
+    }
+  ]
+}
