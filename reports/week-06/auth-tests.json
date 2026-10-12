@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "week": 6,
+  "commitSha": "5fecb5f4df22165d11f9612ab9942a51ba409118",
+  "generatedAt": "2026-10-11T20:56:00Z",
+  "checks": [
+    {
+      "id": "AUTH-01-login",
+      "status": "pass",
+      "scenarioType": "nominal",
+      "command": "npx jest course-tests/team/week-06-backend-auth.test.ts",
+      "evidence": "El login sintético con un actor público (technician-1) responde 200 y devuelve una sesión con accessToken. La prueba corre contra el backend didáctico local en un puerto efímero, sin Internet."
+    },
+    {
+      "id": "AUTH-02-visibilidad-por-rol",
+      "status": "pass",
+      "scenarioType": "nominal",
+      "command": "npx jest course-tests/team/week-06-backend-auth.test.ts",
+      "evidence": "Los tres roles ven la incidencia campus-inc-001 que les corresponde: el reportante dueño (reporter-1), el técnico asignado (technician-1) y el coordinador (coordinator-1). Las tres listas responden 200."
+    },
+    {
+      "id": "AUTH-03-aislamiento-entre-actores",
+      "status": "pass",
+      "scenarioType": "boundary",
+      "command": "npx jest course-tests/team/week-06-backend-auth.test.ts",
+      "evidence": "Actores del mismo rol pero sin relación con la incidencia no la ven: reporter-2 y technician-2 reciben una lista sin campus-inc-001, y reporter-2 no puede leer su detalle (responde 403 o 404 sin exponer el contenido)."
+    },
+    {
+      "id": "AUTH-04-rechazos-403-sin-efecto",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest course-tests/team/week-06-backend-auth.test.ts",
+      "evidence": "Tres acciones fuera del rol o de la asignación responden 403: un reportante intenta priorizar, un técnico no asignado intenta iniciar y un técnico intenta cerrar. En los dos primeros casos se comparó el detalle de la incidencia antes y después y es idéntico, así que el rechazo no modifica el recurso."
+    },
+    {
+      "id": "AUTH-05-version-obsoleta",
+      "status": "pass",
+      "scenarioType": "boundary",
+      "command": "npx jest course-tests/team/week-06-backend-auth.test.ts",
+      "evidence": "El técnico asignado inicia la incidencia con baseVersion 1 y el backend responde 201. Repetir la acción con la misma baseVersion ya obsoleta y otra clave de idempotencia responde 409. Resultado total del archivo: 11 de 11 pruebas pasan."
+    }
+  ]
+}
