@@ -16,7 +16,7 @@ Se comparan tres copias del registro, campo por campo:
 | **local** | El registro con los cambios hechos sin conexión. |
 | **remoto** | El registro actual en el servidor. |
 
-La versión base de cada operación pendiente se guarda en la cola local `[COMPLETAR: cómo y dónde la guarda el modelo de datos de Germán, ver docs/data-model.md]`.
+La versión base de cada operación pendiente se guarda en la cola local como el campo `baseVersion` de la operación (ver `docs/data-model.md`). La base completa es la copia local de la incidencia (`getIncident`), que no se actualiza hasta que el servidor confirma la operación. Si esa copia ya no está en `baseVersion`, no hay base fiable y se marca conflicto en el campo `base`.
 
 La lógica vive en `src/domain/sync.ts` (dominio puro, sin red ni almacenamiento) y se expone mediante `resolveSync` y `deduplicateOperations` en `src/course-evaluation/index.ts`.
 
@@ -54,7 +54,7 @@ Garantías:
 - **No se pisa lo remoto:** la reasignación del servidor no se sobrescribe con el estado local.
 - **No se borra la intención local:** la operación local (empezar el trabajo) no se descarta; se conserva en la cola, marcada como conflicto, para que una persona decida.
 - **No se modifican los datos de entrada:** `resolveSync` no cambia `base`, `local` ni `remote`. La prueba pública de la semana 8 lo comprueba comparando el JSON antes y después.
-- **La decisión es humana:** la app no elige ganador automáticamente. `[COMPLETAR: quién resuelve y cómo, por ejemplo el coordinador]`.
+- **La decisión es humana:** la app no elige ganador automáticamente. Quien resuelve es el coordinador. La operación queda en la cola con `status: 'conflict'` y los campos en conflicto; todavía no existe pantalla de resolución.
 
 ## 5. Cambios independientes
 
@@ -64,7 +64,7 @@ Un campo que el remoto borró y que local no tocó se acepta como borrado. Si lo
 
 ## 6. Operaciones repetidas
 
-Cada operación pendiente tiene un `operationId` estable. Si la misma operación aparece más de una vez (por ejemplo, tras un reintento o una reconexión), `deduplicateOperations` conserva **solo la primera ocurrencia** y respeta el orden original. Así un reintento no aplica el mismo efecto dos veces. El reintento con el mismo `operationId` se describe en `[COMPLETAR: documento o sección de Lin sobre reintentos]`.
+Cada operación pendiente tiene un `operationId` estable. Si la misma operación aparece más de una vez (por ejemplo, tras un reintento o una reconexión), `deduplicateOperations` conserva **solo la primera ocurrencia** y respeta el orden original. Así un reintento no aplica el mismo efecto dos veces. El reintento con el mismo `operationId` se describe en la sección 7b de este documento y en `enqueue` de `docs/data-model.md`: un reintento reutiliza el mismo `operationId` y el servidor debe ser idempotente por ese id.
 
 ## 7. Pruebas
 
@@ -76,6 +76,18 @@ Cada operación pendiente tiene un `operationId` estable. Si la misma operación
 ```bash
 npx jest --no-watchman course-tests/public/week-08.test.ts course-tests/team/week-08-sync.test.ts
 ```
+## 7b. Conexión con la cola persistente
+
+`syncPendingOperations` (`src/application/useCases/syncPendingOperations.ts`) recorre la cola guardada por `openLocalDatabase` al recuperar la red. Para cada operación pendiente:
+
+| Resultado | Cuándo | Efecto en la cola |
+|---|---|---|
+| `applied` | El servidor la aceptó | Se retira y se actualiza la copia local |
+| `conflict` | `resolveSync` detecta conflicto, o el servidor responde 409 | Se conserva marcada `conflict`; no se envía nada |
+| `blocked` | Hay un conflicto anterior en la misma incidencia | Queda pendiente (respeta el orden) |
+| `failed` | Error de red u otro | Queda pendiente; se reintenta con el mismo `operationId` |
+
+Además, un técnico no puede actuar sobre una incidencia que el servidor ya reasignó a otra persona, aunque no choquen campos. La prueba del caso obligatorio está en `course-tests/team/week-08-sync-persistence.test.ts`.
 
 ## 8. Límites
 
