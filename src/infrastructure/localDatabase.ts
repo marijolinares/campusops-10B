@@ -202,6 +202,30 @@ export async function openLocalDatabase(
       }));
     },
 
+    /**
+     * El servidor confirmó una operación: en UNA sola escritura la retira de la cola,
+     * guarda la copia actualizada de la incidencia y reubica en la nueva versión las
+     * operaciones pendientes de esa incidencia que nacieron de la misma base local.
+     * Sin esto, la segunda operación sin conexión (p. ej. inicio + nota) quedaría con
+     * una versión base vieja y se confundiría con un conflicto que no existe.
+     * Las operaciones en conflicto no se tocan; el contenido y el operationId no cambian.
+     */
+    async confirmApplied(operationId: string, updated: StoredIncident): Promise<void> {
+      await mutate((doc) => {
+        const incidents = doc.incidents.some((item) => item.id === updated.id)
+          ? doc.incidents.map((item) => (item.id === updated.id ? updated : item))
+          : [...doc.incidents, updated];
+        const queue = doc.queue
+          .filter((item) => item.operationId !== operationId)
+          .map((item) =>
+            item.incidentId === updated.id && item.status === 'pending' && item.baseVersion < updated.version
+              ? { ...item, baseVersion: updated.version }
+              : item,
+          );
+        return { doc: { ...doc, incidents, queue }, result: undefined };
+      });
+    },
+
     /** Retira de la cola SÓLO operaciones confirmadas. Devuelve cuántas retiró. */
     async removeConfirmed(operationIds: readonly string[]): Promise<number> {
       const confirmed = new Set(operationIds);

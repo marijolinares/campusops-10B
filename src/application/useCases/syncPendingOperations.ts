@@ -116,7 +116,9 @@ export async function syncPendingOperations(db: LocalDatabase, remote: SyncRemot
   // Incidencias con una operación sin resolver: sus operaciones posteriores esperan (orden).
   const held = new Set<string>(queue.filter((op) => op.status === 'conflict').map((op) => op.incidentId));
 
-  for (const operation of queue) {
+  for (const listed of queue) {
+    // Relee la operación: al confirmarse una anterior de la misma incidencia, su versión base se actualizó.
+    const operation = (await db.listQueue()).find((item) => item.operationId === listed.operationId) ?? listed;
     if (operation.status === 'conflict') continue; // espera decisión humana; no se reenvía
     if (held.has(operation.incidentId)) {
       outcomes.push({ operationId: operation.operationId, result: 'blocked' });
@@ -137,8 +139,7 @@ export async function syncPendingOperations(db: LocalDatabase, remote: SyncRemot
         continue;
       }
       const updated = await remote.applyOperation(operation);
-      await db.removeConfirmed([operation.operationId]); // sólo lo confirmado sale de la cola
-      await db.saveIncidents([updated]);
+      await db.confirmApplied(operation.operationId, updated); // sólo lo confirmado sale de la cola
       outcomes.push({ operationId: operation.operationId, result: 'applied' });
     } catch (error) {
       if (error instanceof RemoteConflictError) {
