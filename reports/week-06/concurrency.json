@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "week": 6,
+  "commitSha": "5fecb5f4df22165d11f9612ab9942a51ba409118",
+  "generatedAt": "2026-10-11T20:56:00Z",
+  "checks": [
+    {
+      "id": "CON-01-un-solo-refresh",
+      "status": "pass",
+      "scenarioType": "nominal",
+      "command": "npx jest course-tests/public/week-06.test.ts course-tests/team/week-06-session.test.ts",
+      "evidence": "Tres peticiones que reciben 401 al mismo tiempo provocan UNA sola renovación y cada petición se reintenta una vez. La prueba pública (2 de 2) y las 8 pruebas de week-06-session.test.ts pasan."
+    },
+    {
+      "id": "CON-02-401-tardio",
+      "status": "pass",
+      "scenarioType": "boundary",
+      "command": "npx jest course-tests/team/week-06-session.test.ts",
+      "evidence": "Un 401 que llega tarde, cuando el token ya fue renovado, no dispara otra renovación: la petición solo se reintenta con el token nuevo, porque su generación es menor a la activa."
+    },
+    {
+      "id": "CON-03-sin-bucle-de-reintentos",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest course-tests/team/week-06-session.test.ts course-tests/team/week-06-coordinate-refresh.test.ts",
+      "evidence": "Si el reintento vuelve a recibir 401 no hay bucle: cada petición se reintenta como máximo una vez (MAX_RETRIES_PER_REQUEST = 1). Los eventos inválidos dejan el estado sin cambios."
+    },
+    {
+      "id": "CON-04-refresh-fallido",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest course-tests/team/week-06-session.test.ts",
+      "evidence": "Si la renovación falla, la sesión regresa a no autenticada, se borran la sesión y los tokens y se avisa a la app. No quedan reintentos pendientes."
+    },
+    {
+      "id": "CON-05-logout-y-logs",
+      "status": "pass",
+      "scenarioType": "nominal",
+      "command": "npx jest course-tests/team/week-06-session.test.ts course-tests/public/week-06.test.ts",
+      "evidence": "El logout borra los tokens del almacenamiento seguro y de memoria, y coordinateRefresh con logout deja persistedToken en null. Las pruebas confirman que los tokens nunca aparecen en los logs."
+    }
+  ]
+}

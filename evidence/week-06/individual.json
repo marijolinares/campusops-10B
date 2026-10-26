@@ -20,12 +20,56 @@
         "npx jest course-tests/team/week-06-coordinate-refresh.test.ts course-tests/team/week-06-authorization.test.ts"
       ],
       "reviews": [
-        "Revisé src/domain/session.ts de German: confirmé que transition, canRetry e isStaleGeneration cubren el 401 tardío, el límite de un reintento y el cierre de sesión, y que coordinateRefresh las usa sin copiar su lógica."
+        "Revisé src/domain/session.ts de German: confirmé que transition, canRetry e isStaleGeneration cubren el 401 tardío, el límite de un reintento y el cierre de sesión, yque coordinateRefresh las usa sin copiar su lógica."
       ],
       "prediction": "Esperaba que, con 3 errores 401 juntos, coordinateRefresh contara un solo refresh y reintentara cada petición una vez al llegar refreshSucceeded. También esperaba que un 401 de una generación vieja solo se reintentara con el token nuevo, sin iniciar otro refresh, y que tras refreshFailed o logout no quedara token ni reintentos pendientes.",
       "command": "npx jest course-tests/public/week-06.test.ts course-tests/team/week-06-coordinate-refresh.test.ts course-tests/team/week-06-authorization.test.ts",
       "observedResult": "La prueba pública de la semana 6 pasó 2 de 2. Mis pruebas de coordinateRefresh pasaron 6 de 6 (3 errores 401 juntos, refresh fallido, 401 tardío, reintento máximo, logout y tokens redactados en logs) y las de permisos 3 de 3. npm run typecheck y npm run lint no reportaron errores.",
       "explanation": "Implementé coordinateRefresh en src/course-evaluation/index.ts. La función recorre los eventos y delega las decisiones en src/domain/session.ts: transition decide el estado de la sesión, canRetry limita cada petición a un reintento e isStaleGeneration detecta un 401 tardío. Así el primer 401 inicia un solo refresh, los demás esperan, y al llegar refreshSucceeded se reintenta cada petición una vez; con refreshFailed o logout se borra el token y no se reintenta nada. También creé src/domain/authorization.ts con canPerform, que aplica los permisos por rol de docs/CAMPUSOPS.md: el reportante crea y consulta lo suyo, el técnico solo opera lo asignado a él y el coordinador cierra y reabre. Las pruebas cubren refresh fallido, 401 tardío, logout, límite de reintento y que los tokens no aparezcan en logs."
+    },
+    {
+      "studentId": "3523110316",
+      "commitShas": [
+        "c0e4c04b78b17c8898b00966833b4b5b77f7a3ac"
+      ],
+      "files": [
+        "src/domain/session.ts",
+        "src/api/incidentClient.ts",
+        "src/composition/root.ts",
+        "course-tests/team/week-06-session.test.ts"
+      ],
+      "tests": [
+        "npx jest course-tests/team/week-06-session.test.ts"
+      ],
+      "reviews": [
+        "Revisé src/course-evaluation/index.ts de Irvin: confirmé que coordinateRefresh reutiliza transition, canRetry e isStaleGeneration de src/domain/session.ts sin copiar sus reglas."
+      ],
+      "prediction": "Esperaba que tres respuestas 401 simultáneas hicieran una sola renovación y que cada petición se reintentara una vez. También esperaba que un 401 tardío con el token ya renovado no iniciara otra renovación, que un segundo 401 en el reintento no causara un bucle y que, si la renovación fallaba, se borraran la sesión y los tokens.",
+      "command": "npx jest course-tests/team/week-06-session.test.ts",
+      "observedResult": "Las 8 pruebas de week-06-session.test.ts pasaron: renovación fallida regresa a no autenticado, eventos inválidos no cambian el estado y el reintento se limita a 1, tres 401 simultáneos hacen una renovación, un 401 tardío no dispara otra, no hay bucle si el reintento vuelve a dar 401, la renovación fallida borra sesión y tokens, el logout borra los tokens y los tokens no aparecen en los logs.",
+      "explanation": "Creé src/domain/session.ts con los estados de la sesión (unauthenticated, authenticating, authenticated, expired y refreshing) y una tabla de transiciones; lo que no está en la tabla deja el estado igual, así un evento duplicado no provoca bucles. Define MAX_RETRIES_PER_REQUEST = 1 y la función isStaleGeneration para detectar un 401 tardío. En src/api/incidentClient.ts el cliente usa una generación de sesión que sube con cada login, renovación o logout, y comparte una sola renovación entre las peticiones que reciben 401. Si la renovación falla, borra la sesión y los tokens y avisa a la app. Conecté todo en src/composition/root.ts y escribí las pruebas en course-tests/team/week-06-session.test.ts."
+    },
+    {
+      "studentId": "3523110094",
+      "commitShas": [
+        "5fecb5f4df22165d11f9612ab9942a51ba409118"
+      ],
+      "files": [
+        "course-tests/team/week-06-backend-auth.test.ts",
+        "docs/session-state-machine.mmd"
+      ],
+      "tests": [
+        "npx jest course-tests/team/week-06-backend-auth.test.ts",
+        "npx jest course-tests/team"
+      ],
+      "reviews": [
+        "Antes de integrar revisé el diff de develop contra main (coordinateRefresh y authorization.ts de Irvin) y comprobé con typecheck, lint y las pruebas del equipo que el merge no rompía nada.",
+        "Leí src/domain/session.ts de German para que el diagrama docs/session-state-machine.mmd coincida con su tabla de transiciones."
+      ],
+      "prediction": "Esperaba que reporter-2 y technician-2 no vieran la incidencia campus-inc-001, que las acciones fuera de rol o de asignación respondieran 403 sin modificar el recurso, y que repetir una acción con una baseVersion obsoleta respondiera 409. También esperaba que crear la acción start respondiera 200.",
+      "command": "npx jest course-tests/team/week-06-backend-auth.test.ts",
+      "observedResult": "En la primera corrida pasaron 10 de 11: la prueba de start falló porque el backend responde 201 y no 200 al crear la acción. Corregí esa expectativa a 201 y la segunda corrida pasó 11 de 11. Con todas las pruebas del equipo pasan 8 suites y 93 pruebas, y typecheck y lint no reportaron errores.",
+      "explanation": "Escribí las pruebas de autorización contra el backend didáctico real. El archivo levanta el servidor local en un puerto efímero y llama las rutas con cada actor. Comprueba que el reportante, el técnico asignado y el coordinador ven campus-inc-001, que reporter-2 y technician-2 no la ven, que las acciones fuera de rol dan 403 y que el detalle de la incidencia queda igual después del rechazo, y que una versión obsoleta da 409. También dibujé el diagrama de estados de la sesión en docs/session-state-machine.mmd a partir de la tabla de transiciones de session.ts, integré develop en main y armé los reportes y el engineering.json."
     }
   ]
 }

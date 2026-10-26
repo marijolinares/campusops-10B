@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "week": 6,
+  "commitSha": "5fecb5f4df22165d11f9612ab9942a51ba409118",
+  "decision": "Política de renovación: cuando llega un 401 se inicia UNA sola renovación compartida por todas las peticiones que fallaron al mismo tiempo, y cada petición se reintenta como máximo una vez con el token nuevo. Cada login, renovación o logout sube una generación de sesión, y un 401 de una generación vieja solo reintenta con el token nuevo, sin iniciar otra renovación. Transición segura ante fallo: si la renovación falla (o el reintento vuelve a dar 401), la sesión pasa a no autenticada, se borran sesión y tokens del almacenamiento seguro y de memoria, y se avisa a la app para volver a iniciar sesión. Las reglas viven en src/domain/session.ts (tabla de transiciones, canRetry, isStaleGeneration), se reutilizan en el cliente y en coordinateRefresh, y el diagrama está en docs/session-state-machine.mmd.",
+  "alternatives": [
+    "Una renovación por cada petición con 401. Descartada: varias renovaciones simultáneas duplican llamadas al servidor y pueden invalidarse entre sí si el token de renovación rota. Es justo la falla que la actividad pide evitar.",
+    "Renovar de forma proactiva con un temporizador antes de que expire el token. Descartada como mecanismo único: depende del reloj del dispositivo y no cubre un token revocado o invalidado por el servidor. Un 401 sigue siendo la señal confiable.",
+    "Reintentar sin límite o con backoff hasta que funcione. Descartada: puede provocar un bucle de peticiones cuando el servidor sigue rechazando al usuario y deja la sesión en un estado intermedio."
+  ],
+  "tradeoff": "Las peticiones que reciben 401 esperan a la renovación en curso, lo que agrega algo de latencia, y un fallo de renovación cierra la sesión para todas, de modo que el usuario debe volver a iniciar sesión. A cambio se evitan renovaciones duplicadas, bucles de reintentos y estados de sesión inconsistentes, y no queda ningún token persistido tras un fallo o un logout.",
+  "requirementIds": ["AC-01", "AC-02", "AC-03", "AC-04", "AC-05"],
+  "verification": [
+    {
+      "command": "npx jest course-tests/public/week-06.test.ts",
+      "result": "2 de 2 pruebas pasan",
+      "evidence": "Tres 401 simultáneos dan un solo refresh con cada petición reintentada una vez, y el logout deja persistedToken en null (AC-02, AC-03)."
+    },
+    {
+      "command": "npx jest course-tests/team/week-06-session.test.ts",
+      "result": "8 de 8 pruebas pasan",
+      "evidence": "Cubren refresh único compartido, 401 tardío sin nueva renovación, máximo un reintento sin bucle, refresh fallido que borra sesión y tokens, logout y tokens ausentes de los logs (AC-02, AC-03, AC-04)."
+    },
+    {
+      "command": "npx jest course-tests/team/week-06-backend-auth.test.ts",
+      "result": "11 de 11 pruebas pasan",
+      "evidence": "Autorización por rol contra el backend local: visibilidad de los tres roles, aislamiento entre actores, rechazos 403 que no modifican el recurso y 409 por versión obsoleta (AC-02)."
+    },
+    {
+      "command": "npx jest course-tests/team",
+      "result": "8 suites y 93 pruebas pasan",
+      "evidence": "Las pruebas acumuladas del equipo siguen pasando tras integrar develop en main (AC-01)."
+    },
+    {
+      "command": "npm run typecheck && npm run lint",
+      "result": "Sin errores",
+      "evidence": "Ambos comandos terminan sin reportar errores en el código entregado (AC-01)."
+    }
+  ]
+}
