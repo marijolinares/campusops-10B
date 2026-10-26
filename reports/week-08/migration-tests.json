@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "week": 8,
+  "commitSha": "f66fa3774d1c3287623956da0a5e98882c1731f9",
+  "generatedAt": "2026-10-26T10:15:00-06:00",
+  "checks": [
+    {
+      "id": "migration-v1-v2-success",
+      "status": "pass",
+      "scenarioType": "nominal",
+      "command": "npx jest --no-watchman course-tests/team/week-08-persistence.test.ts",
+      "evidence": "Se siembran datos del esquema v1 (claves campusops.incidents y campusops.queue) con dos incidencias (campus-inc-001 versión 1 y campus-inc-002 versión 3) y tres operaciones pendientes. Tras migrar, el resultado es 'migrated': se conservan las dos incidencias con sus versiones y las operaciones op-legacy-1 (start), op-legacy-2 (comment, con su texto) y op-legacy-3 (add_evidence, con localUri y uploaded:false) con el mismo operationId, actor y baseVersion. Las claves v1 se eliminan solo después del commit. Al reabrir, el resultado es 'already-current' y la cola queda idéntica. Resultado: 14 de 14 pruebas pasaron en el archivo."
+    },
+    {
+      "id": "migration-failure-mid-transform-rollback",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest --no-watchman course-tests/team/week-08-persistence.test.ts",
+      "evidence": "Con una falla inyectada a mitad de la transformación (parte de la cola ya transformada en memoria), openLocalDatabase lanza MigrationError. Estado antes: v1 completo. Estado después de la falla: las dos claves v1 son idénticas a las de antes, no existe la clave v2 y el almacenamiento tiene solo los 2 archivos originales, sin mezcla de esquemas. Estado después de recuperar: reabrir sin falla completa la migración ('migrated') con las 3 operaciones (op-legacy-1, 2 y 3) y las 2 incidencias."
+    },
+    {
+      "id": "migration-failure-before-commit-rollback",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest --no-watchman course-tests/team/week-08-persistence.test.ts",
+      "evidence": "Con una falla inyectada justo antes del commit, el documento v2 ya está calculado pero no se escribe. Estado antes: v1 completo. Estado después de la falla: v1 intacto, sin clave v2 y sin archivos extra. Estado después de recuperar: reabrir completa la migración con los mismos datos y los mismos operationId."
+    },
+    {
+      "id": "migration-failure-after-commit-recovery",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest --no-watchman course-tests/team/week-08-persistence.test.ts",
+      "evidence": "Con una falla inyectada después del commit, existe el documento v2 y todavía quedan restos de v1. Al reabrir se detecta un v2 válido, el resultado es 'cleaned-after-commit', se eliminan las claves v1 y la cola sigue con 3 operaciones, sin duplicarlas."
+    },
+    {
+      "id": "migration-unreadable-data-never-deleted",
+      "status": "pass",
+      "scenarioType": "boundary",
+      "command": "npx jest --no-watchman course-tests/team/week-08-persistence.test.ts",
+      "evidence": "Un v2 ilegible con v1 disponible se descarta y se migra de nuevo desde v1 ('discarded-unreadable-v2', 3 operaciones). Un v1 ilegible no se borra: se lanza un error con código legacy_unreadable y el contenido original sigue guardado. Una instalación nueva crea un documento v2 vacío ('fresh')."
+    },
+    {
+      "id": "queue-restart-same-identity",
+      "status": "pass",
+      "scenarioType": "nominal",
+      "command": "npx jest --no-watchman course-tests/team/week-08-persistence.test.ts",
+      "evidence": "La prueba 'conserva identidad y contenido tras cerrar y reabrir' encola un inicio de atención y registra notas o referencias a fotografías pendientes sin conexión, cierra y reabre el almacenamiento, y recupera el mismo contenido con el mismo operationId. Otras pruebas del mismo archivo: reintentar el mismo operationId no duplica (con otro contenido es error), las mutaciones concurrentes no pierden operaciones y un error o conflicto no retira la operación de la cola."
+    },
+    {
+      "id": "conflict-reassignment-preserves-intent",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest --no-watchman course-tests/team/week-08-sync-persistence.test.ts",
+      "evidence": "El técnico inicia atención sin conexión sobre una versión base común mientras coordinación reasigna la incidencia en el servidor. Al reconectar se detecta el conflicto: la operación se conserva en la cola con estado 'conflict', no se envía nada al servidor y no se pisa la asignación remota. El conflicto sobrevive a otro reinicio y a otra sincronización, y una operación posterior de la misma incidencia queda en espera. Resultado: 7 de 7 pruebas pasaron en el archivo."
+    },
+    {
+      "id": "merge-and-dedup",
+      "status": "pass",
+      "scenarioType": "boundary",
+      "command": "npx jest --no-watchman course-tests/team/week-08-sync.test.ts",
+      "evidence": "Si los dos lados hacen el mismo cambio no hay conflicto; si el remoto borra un campo que local no tocó se acepta el borrado; si local edita un campo que el remoto borró es conflicto. Un conflicto no modifica base, local ni remoto. deduplicateOperations conserva la primera ocurrencia de cada operationId y el orden. Resultado: 5 de 5 pruebas pasaron."
+    },
+    {
+      "id": "server-idempotency-no-double-apply",
+      "status": "pass",
+      "scenarioType": "boundary",
+      "command": "npx jest --no-watchman course-tests/team/week-08-backend-idempotency.test.ts",
+      "evidence": "En el backend didáctico real, la primera llamada a POST /v1/incidents/campus-inc-001/actions con Idempotency-Key devuelve 201 con duplicate:false. Repetirla con la misma clave devuelve 200 con duplicate:true y la misma versión. La incidencia queda en versión 2, no en 3, y el historial tiene una sola entrada con ese operationId. La misma clave con otro contenido devuelve 409 idempotency_key_reused sin cambiar la versión. Sin clave o con una clave corta devuelve 400. Resultado: 4 de 4 pruebas pasaron."
+    },
+    {
+      "id": "server-rejects-stale-operation-after-reassign",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest --no-watchman course-tests/team/week-08-backend-idempotency.test.ts",
+      "evidence": "Coordinación reasigna la incidencia a technician-2 (versión 3). Después, la operación 'start' de technician-1 con baseVersion 2 recibe 403 forbidden y no se aplica. La asignación remota sigue siendo technician-2 y la versión sigue en 3."
+    }
+  ]
+}
