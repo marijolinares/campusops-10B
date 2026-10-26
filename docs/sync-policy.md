@@ -89,6 +89,12 @@ npx jest --no-watchman course-tests/public/week-08.test.ts course-tests/team/wee
 
 Además, un técnico no puede actuar sobre una incidencia que el servidor ya reasignó a otra persona, aunque no choquen campos. La prueba del caso obligatorio está en `course-tests/team/week-08-sync-persistence.test.ts`.
 
+### Varias operaciones sobre la misma incidencia
+
+Un técnico sin conexión puede encolar varias operaciones sobre la misma incidencia (por ejemplo inicio de atención, una nota y una referencia de fotografía pendiente), y todas nacen con la misma `baseVersion`. Cuando el servidor confirma la primera, la incidencia sube de versión; si las siguientes conservaran la versión vieja, se confundirían con un conflicto que no existe (y el servidor las rechazaría con 409).
+
+Por eso, al confirmar una operación, `confirmApplied` (`src/infrastructure/localDatabase.ts`) hace en **una sola escritura** tres cosas: retira esa operación de la cola, guarda la copia actualizada de la incidencia y pasa a la nueva versión la `baseVersion` de las operaciones **pendientes** de esa incidencia. El `operationId` y el contenido no cambian, así que un reintento conserva su identidad. Las operaciones en `conflict` no se tocan, y si la primera operación entra en conflicto nada se reubica: las siguientes quedan `blocked` con su versión base original. Las pruebas están en `course-tests/team/week-08-sync-multi-operation.test.ts` (aplicación en orden, reinicio a mitad de la sincronización y conflicto real).
+
 ## 8. Límites
 
 - La comparación de objetos es por campo completo; no se combinan subcampos de `work`.
