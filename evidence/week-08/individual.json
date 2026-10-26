@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "week": 8,
+  "teamId": "campusops-team",
+  "members": [
+    {
+      "studentId": "3523110247",
+      "commitShas": [
+        "f25cf3fcad914ab508a3c86b95d04f2eb13ae5d2"
+      ],
+      "files": [
+        "src/domain/sync.ts",
+        "src/course-evaluation/index.ts",
+        "course-tests/team/week-08-sync.test.ts",
+        "docs/sync-policy.md"
+      ],
+      "tests": [
+        "npx jest --no-watchman course-tests/public/week-08.test.ts course-tests/team/week-08-sync.test.ts"
+      ],
+      "reviews": [
+        "REEMPLAZAR: escribe qué archivo de Germán o de Lin revisaste y qué confirmaste. Por ejemplo, que la versión base guardada en la cola es la que usa resolveSync."
+      ],
+      "prediction": "Esperaba que la reasignación remota a technician-2 y el inicio de trabajo local (in_progress) sobre el mismo campo work dieran un conflicto sin modificar base, local ni remoto. También esperaba que cambios en campos distintos se combinaran, que un mismo cambio en ambos lados no fuera conflicto y que una operación repetida con el mismo operationId se descartara conservando la primera.",
+      "command": "npx jest --no-watchman course-tests/public/week-08.test.ts course-tests/team/week-08-sync.test.ts",
+      "observedResult": "REEMPLAZAR: pega el resultado real de tu corrida. Ejemplo de formato: Las 3 pruebas públicas pasaron y mis 5 pruebas del equipo pasaron (X de X). npm run typecheck y npm run lint no reportaron errores.",
+      "explanation": "Implementé la lógica de sincronización en src/domain/sync.ts, un módulo de dominio puro. mergeRecords compara base, local y remoto campo por campo: si solo cambió un lado gana ese lado, si los dos hicieron el mismo cambio se conserva, y si los dos cambiaron el mismo campo con valores distintos devuelve un conflicto con los nombres de esos campos, sin combinar nada y sin modificar los registros. dedupeByOperationId conserva la primera ocurrencia de cada operationId y respeta el orden. Conecté las dos funciones en src/course-evaluation/index.ts: resolveSync llama a mergeRecords y deduplicateOperations llama a dedupeByOperationId. En el caso de la reasignación conflictiva, el estado local in_progress y la reasignación remota a technician-2 caen en el mismo campo work, así que resulta en conflict y se conserva la intención local sin pisar lo remoto. Redacté docs/sync-policy.md con las reglas, el caso de reasignación, el manejo de duplicados y los límites."
+    }
+  ]
+}

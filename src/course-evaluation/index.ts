@@ -8,6 +8,7 @@ import type {
 } from './contracts';
 import type { IncidentLocation } from '../campusops/contracts';
 import { canRetry, isStaleGeneration, transition, type SessionStatus } from '../domain/session';
+import { dedupeByOperationId, mergeRecords } from '../domain/sync';
 
 
 function pending(name: string): never {
@@ -170,13 +171,13 @@ export function resolveSync(
   _local: SyncRecord,
   _remote: SyncRecord,
 ): Readonly<{ kind: 'merged'; fields: JsonObject } | { kind: 'conflict'; fields: readonly string[] }> {
-  return pending('resolveSync');
+    return mergeRecords(_base, _local, _remote);
 }
 
 export function deduplicateOperations<T extends Readonly<{ operationId: string }>>(
   _operations: readonly T[],
 ): readonly T[] {
-  return pending('deduplicateOperations');
+    return dedupeByOperationId(_operations);
 }
 
 export function planRetry(_input: Readonly<{
