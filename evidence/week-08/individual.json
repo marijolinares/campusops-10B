@@ -6,10 +6,14 @@
     {
       "studentId": "3523110247",
       "commitShas": [
-        "f25cf3fcad914ab508a3c86b95d04f2eb13ae5d2"
+        "f25cf3fcad914ab508a3c86b95d04f2eb13ae5d2",
+        "dfb9a52e8520f5a964c5efbc0ade699a99317d6e",
+        "f06f923340ebef0b792c8d88ab9e9be686362583",
+        "039b0b327361c1a99af7efd8715605cacd8b23f5"
       ],
       "files": [
         "src/domain/sync.ts",
+        "src/application/useCases/syncPendingOperations.ts",
         "src/course-evaluation/index.ts",
         "course-tests/team/week-08-sync.test.ts",
         "docs/sync-policy.md"
@@ -18,12 +22,60 @@
         "npx jest --no-watchman course-tests/public/week-08.test.ts course-tests/team/week-08-sync.test.ts"
       ],
       "reviews": [
-        "REEMPLAZAR: escribe qué archivo de Germán o de Lin revisaste y qué confirmaste. Por ejemplo, que la versión base guardada en la cola es la que usa resolveSync."
+        "Revisé src/infrastructure/localDatabase.ts de German: confirmé que la cola guarda baseVersion por operación y que el mismo operationId con el mismo contenido no crea otra operación (con contenido distinto lanza operation_id_reuse). Eso es la base que usa resolveSync en syncPendingOperations.ts: si la copia local ya no está en baseVersion, se marca conflicto y no se combina nada."
       ],
       "prediction": "Esperaba que la reasignación remota a technician-2 y el inicio de trabajo local (in_progress) sobre el mismo campo work dieran un conflicto sin modificar base, local ni remoto. También esperaba que cambios en campos distintos se combinaran, que un mismo cambio en ambos lados no fuera conflicto y que una operación repetida con el mismo operationId se descartara conservando la primera.",
       "command": "npx jest --no-watchman course-tests/public/week-08.test.ts course-tests/team/week-08-sync.test.ts",
-      "observedResult": "REEMPLAZAR: pega el resultado real de tu corrida. Ejemplo de formato: Las 3 pruebas públicas pasaron y mis 5 pruebas del equipo pasaron (X de X). npm run typecheck y npm run lint no reportaron errores.",
+      "observedResult": "Las 3 pruebas públicas de la semana 8 pasaron y mis 5 pruebas del equipo en week-08-sync.test.ts pasaron (8 de 8 en 2 suites): mismo cambio en ambos lados sin conflicto, borrado remoto de un campo que local no tocó aceptado, edición local de un campo borrado en remoto como conflicto, un conflicto que no modifica base, local ni remoto, y deduplicateOperations que conserva la primera ocurrencia y el orden. npm run typecheck y npm run lint no reportaron errores.",
       "explanation": "Implementé la lógica de sincronización en src/domain/sync.ts, un módulo de dominio puro. mergeRecords compara base, local y remoto campo por campo: si solo cambió un lado gana ese lado, si los dos hicieron el mismo cambio se conserva, y si los dos cambiaron el mismo campo con valores distintos devuelve un conflicto con los nombres de esos campos, sin combinar nada y sin modificar los registros. dedupeByOperationId conserva la primera ocurrencia de cada operationId y respeta el orden. Conecté las dos funciones en src/course-evaluation/index.ts: resolveSync llama a mergeRecords y deduplicateOperations llama a dedupeByOperationId. En el caso de la reasignación conflictiva, el estado local in_progress y la reasignación remota a technician-2 caen en el mismo campo work, así que resulta en conflict y se conserva la intención local sin pisar lo remoto. Redacté docs/sync-policy.md con las reglas, el caso de reasignación, el manejo de duplicados y los límites."
+    },
+    {
+      "studentId": "3523110316",
+      "commitShas": [
+        "5566757486372fbf0ea41dd89e4c3b90254a2113",
+        "b0548926f2a147d19b7810f8bb9b582c0f3b37da"
+      ],
+      "files": [
+        "src/domain/offlineModel.ts",
+        "src/infrastructure/keyValueStorage.ts",
+        "src/infrastructure/localDatabase.ts",
+        "src/infrastructure/migrations.ts",
+        "course-tests/team/week-08-persistence.test.ts",
+        "docs/data-model.md"
+      ],
+      "tests": [
+        "npx jest --no-watchman course-tests/team/week-08-persistence.test.ts"
+      ],
+      "reviews": [],
+      "prediction": "Comprobaciones que cubren sus pruebas en week-08-persistence.test.ts: la cola conserva identidad y contenido al cerrar y reabrir; una falla mid-transform o before-commit deja v1 intacto y sin clave v2; una falla after-commit deja v2 íntegro y se limpian los restos de v1 sin duplicar operaciones; un operationId repetido con otro contenido es error.",
+      "command": "npx jest --no-watchman course-tests/team/week-08-persistence.test.ts",
+      "observedResult": "Al ejecutar el comando sobre su commit pasaron 14 de 14 pruebas en course-tests/team/week-08-persistence.test.ts: cola persistente, migración v1 a v2 correcta, fallas mid-transform, before-commit y after-commit, v2 ilegible, v1 ilegible e instalación nueva.",
+      "explanation": "Su commit agrega src/infrastructure/localDatabase.ts, que guarda las incidencias y la cola en un único documento v2 con operationId, incidencia, autor, contenido y baseVersion por operación; src/infrastructure/migrations.ts, que migra de v1 (dos claves) a v2 escribiendo el documento v2 completo y releyéndolo antes de borrar v1, de modo que una falla antes del commit deja solo v1 y una falla posterior se recupera al reabrir; src/domain/offlineModel.ts con los tipos y la validación del documento; src/infrastructure/keyValueStorage.ts con el almacenamiento; y 14 pruebas en course-tests/team/week-08-persistence.test.ts. Su segundo commit agrega docs/data-model.md con el modelo, la cola y el procedimiento de migración."
+    },
+    {
+      "studentId": "3523110094",
+      "commitShas": [
+        "f66fa3774d1c3287623956da0a5e98882c1731f9",
+        "54a5a867597ff8116bb07bab5d77d34532dfe257",
+        "f2d96d1ce84fadfd3ee771c98224aa9f42cee1fa"
+      ],
+      "files": [
+        "course-tests/team/week-08-backend-idempotency.test.ts",
+        "reports/week-08/migration-tests.json",
+        "evidence/week-08/engineering.json",
+        "evidence/week-08/individual.json"
+      ],
+      "tests": [
+        "npx jest --no-watchman course-tests/team/week-08-backend-idempotency.test.ts",
+        "npx jest --no-watchman course-tests/team"
+      ],
+      "reviews": [
+        "Revisé syncPendingOperations.ts de Irvin y localDatabase.ts de German. Con ayuda de Claude se detectó que dos operaciones sin conexión sobre la misma incidencia (start y una nota) dejaban la segunda como conflicto falso en el campo 'base'; apliqué la corrección que reubica la baseVersion al confirmar una operación (commit f2d96d1) y ejecuté las pruebas de week-08 antes de subirla."
+      ],
+      "prediction": "Esperaba que repetir la misma Idempotency-Key no repitiera el efecto (la incidencia quedaría en versión 2 y no en 3), que la misma clave con otro contenido diera 409 y que, tras la reasignación a technician-2, la operación vieja de technician-1 no se aplicara.",
+      "command": "npx jest --no-watchman course-tests/team/week-08-backend-idempotency.test.ts",
+      "observedResult": "Las 4 pruebas de week-08-backend-idempotency.test.ts pasaron (4 de 4) contra el backend real: la repetición devuelve duplicate:true y la versión queda en 2, la misma clave con otro contenido da 409, sin clave o con clave corta da 400, y la operación vieja tras la reasignación recibe 403. En las otras suites de la semana 8 pasaron 14 de 14 (persistence), 7 de 7 (sync-persistence) y 5 de 5 (sync). npm run typecheck y npm run lint no reportaron errores.",
+      "explanation": "Escribí y ejecuté las pruebas de idempotencia y reasignación contra el backend didáctico real, y armé reports/week-08/migration-tests.json y evidence/week-08/engineering.json con los comandos y resultados de las corridas. Declaración de IA: usé Claude como asistente para redactar la prueba, detectar el conflicto falso de operaciones múltiples y preparar la corrección y los borradores de los reportes; lo verifiqué ejecutando las pruebas y leyendo el código antes de subirlo."
     }
   ]
 }
