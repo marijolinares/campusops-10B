@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "week": 8,
+  "commitSha": "c23724e713bf8cb0eb25cedb1ae0afdc9b47463a",
+  "decision": "Política de persistencia y sincronización: la base local es un único documento versionado (esquema v2, clave campusops.db.v2) que guarda las incidencias y la cola de operaciones pendientes. La migración v1 a v2 escribe el documento v2 completo y lo relee antes de borrar nada de v1; esa escritura es el punto de commit. Una falla antes del commit deja solo v1 (rollback completo) y una falla posterior deja v2 íntegro y limpia los restos de v1 al reabrir. Cada operación pendiente lleva operationId estable, incidencia, autor (actorId), contenido (payload) y baseVersion. Al reconectar se compara base, local y remoto campo por campo (resolveSync); si el servidor reasignó la incidencia, el cambio local se declara conflicto: la operación se conserva en la cola con estado 'conflict', no se envía y no se pisa lo remoto, y las operaciones posteriores de esa incidencia esperan en orden. Solo se retira de la cola lo que el servidor confirmó: confirmApplied retira la operación, guarda la incidencia actualizada y reubica la baseVersion de las operaciones pendientes de esa incidencia en una sola escritura, para que una segunda operación hecha sin conexión no se confunda con un conflicto. Un error de red o un conflicto la dejan pendiente. El reintento reutiliza el mismo operationId como Idempotency-Key, por lo que el servidor no aplica dos veces el efecto. Las reglas viven en src/domain/sync.ts, src/infrastructure/migrations.ts, src/infrastructure/localDatabase.ts y src/application/useCases/syncPendingOperations.ts, y están documentadas en docs/data-model.md y docs/sync-policy.md.",
+  "alternatives": [
+    "Sobrescribir con la versión local (gana el último que escribe). Descartada: impone una asignación antigua sobre la reasignación de coordinación y pierde el cambio remoto en silencio, que es justo lo que la actividad prohíbe.",
+    "Descartar la operación local cuando hay conflicto. Descartada: se pierde la intención del técnico y lo que registró (notas, referencias de fotografías pendientes); un conflicto no autoriza a borrar la cola.",
+    "Mantener la cola solo en memoria, o en claves separadas sin punto de commit. Descartada: una lista en memoria no sobrevive al reinicio, y escribir varias claves sin confirmación puede dejar datos de dos esquemas mezclados si falla una escritura.",
+    "Retirar la operación de la cola al enviarla, sin esperar confirmación del servidor. Descartada: un timeout no prueba que el servidor no la ejecutó, y quitarla de la cola perdería la operación si la respuesta nunca llegó."
+  ],
+  "tradeoff": "El documento único se reescribe completo en cada cambio, lo que cuesta más escritura y memoria si la cola crece, y la migración necesita espacio para v1 y v2 a la vez durante el commit. Un conflicto deja la operación bloqueada hasta que alguien lo resuelva, y las operaciones posteriores de esa misma incidencia esperan en la cola; además todavía no existe una pantalla para resolverlo. A cambio no se pierde ningún cambio pendiente, la migración nunca deja el almacenamiento a medias, la asignación remota no se sobrescribe y un reintento no repite el efecto en el servidor.",
+  "requirementIds": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "verification": [
+    {
+      "command": "npx jest --no-watchman course-tests/team/week-08-persistence.test.ts",
+      "result": "14 de 14 pruebas pasan",
+      "evidence": "Cola persistente que conserva identidad y contenido tras cerrar y reabrir, migración v1 a v2 correcta, fallas inyectadas mid-transform, before-commit y after-commit con rollback o recuperación sin mezclar esquemas, y un documento dañado que nunca se reemplaza por uno vacío (AC-02, AC-03)."
+    },
+    {
+      "command": "npx jest --no-watchman course-tests/team/week-08-sync-persistence.test.ts",
+      "result": "7 de 7 pruebas pasan",
+      "evidence": "Caso obligatorio: el técnico inicia atención sin conexión y coordinación reasigna en el servidor. Se detecta el conflicto, la operación se conserva en la cola y no se pisa lo remoto. Un error de red o un 409 no retiran la operación (AC-02, AC-03, AC-04)."
+    },
+    {
+      "command": "npx jest --no-watchman course-tests/team/week-08-sync-multi-operation.test.ts",
+      "result": "3 de 3 pruebas pasan",
+      "evidence": "Inicio, nota y foto pendiente sobre la misma incidencia se aplican en orden contra un servidor que responde 409 si la versión base no coincide; la versión base reubicada sobrevive al reinicio; y un conflicto real no reubica ni descarta las siguientes operaciones. Las dos primeras pruebas fallaban antes de la corrección (AC-02, AC-03, AC-04)."
+    },
+    {
+      "command": "npx jest --no-watchman course-tests/team/week-08-sync.test.ts",
+      "result": "5 de 5 pruebas pasan",
+      "evidence": "Combinación de cambios independientes, conflicto cuando ambos lados cambian el mismo campo sin modificar base, local ni remoto, y deduplicateOperations que conserva la primera operación y el orden (AC-02)."
+    },
+    {
+      "command": "npx jest --no-watchman course-tests/team/week-08-backend-idempotency.test.ts",
+      "result": "4 de 4 pruebas pasan",
+      "evidence": "Contra el backend real: repetir la misma Idempotency-Key devuelve duplicate:true y deja la incidencia en versión 2, no en 3; la misma clave con otro contenido da 409; una operación obsoleta tras la reasignación recibe 403 y no se aplica (AC-02, AC-03)."
+    },
+    {
+      "command": "npx jest --no-watchman course-tests/public/week-08.test.ts",
+      "result": "suite aprobada (PASS)",
+      "evidence": "Las pruebas públicas de resolveSync y deduplicateOperations pasan con la implementación real conectada en src/course-evaluation/index.ts (AC-01, AC-02)."
+    },
+    {
+      "command": "npx jest --no-watchman course-tests/team",
+      "result": "13 suites y 126 pruebas pasan",
+      "evidence": "Las pruebas acumuladas del equipo, incluidas las de login, permisos por perfil y renovación compartida de la semana 6, siguen pasando tras agregar la persistencia (AC-01)."
+    },
+    {
+      "command": "npm run typecheck && npm run lint",
+      "result": "Sin errores",
+      "evidence": "Ambos comandos terminan sin reportar errores en el código entregado (AC-01)."
+    }
+  ]
+}

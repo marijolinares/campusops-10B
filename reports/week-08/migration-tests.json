@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "week": 8,
-  "commitSha": "f66fa3774d1c3287623956da0a5e98882c1731f9",
-  "generatedAt": "2026-10-26T10:15:00-06:00",
+  "commitSha": "c23724e713bf8cb0eb25cedb1ae0afdc9b47463a",
+  "generatedAt": "2026-10-26T11:30:00-06:00",
   "checks": [
     {
       "id": "migration-v1-v2-success",
@@ -73,6 +73,27 @@
       "scenarioType": "failure",
       "command": "npx jest --no-watchman course-tests/team/week-08-backend-idempotency.test.ts",
       "evidence": "Coordinación reasigna la incidencia a technician-2 (versión 3). Después, la operación 'start' de technician-1 con baseVersion 2 recibe 403 forbidden y no se aplica. La asignación remota sigue siendo technician-2 y la versión sigue en 3."
+    },
+    {
+      "id": "multi-operation-same-incident-no-false-conflict",
+      "status": "pass",
+      "scenarioType": "boundary",
+      "command": "npx jest --no-watchman course-tests/team/week-08-sync-multi-operation.test.ts",
+      "evidence": "Un técnico encola sin conexión tres operaciones sobre campus-inc-001 (start, comment y add_evidence con referencia de fotografía pendiente), todas con baseVersion 1. Contra un servidor que responde 409 si la versión base no coincide, las tres se aplican en orden con las versiones base 1, 2 y 3, conservan su operationId, la cola queda vacía y la incidencia termina en versión 4. Antes de la corrección (confirmApplied) la segunda y la tercera se marcaban como conflicto falso en el campo 'base'. Resultado: 3 de 3 pruebas pasaron en el archivo."
+    },
+    {
+      "id": "multi-operation-network-failure-restart",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest --no-watchman course-tests/team/week-08-sync-multi-operation.test.ts",
+      "evidence": "Si la red falla en la segunda operación, la primera queda confirmada y retirada, y la segunda y la tercera siguen pendientes (resultados applied, failed, blocked). Tras cerrar y reabrir la base, ambas conservan su operationId y su baseVersion ya reubicada en 2. El reintento las aplica con la misma identidad y el servidor las recibe una sola vez y en orden."
+    },
+    {
+      "id": "multi-operation-real-conflict-keeps-queue",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "npx jest --no-watchman course-tests/team/week-08-sync-multi-operation.test.ts",
+      "evidence": "Si coordinación reasignó la incidencia a technician-2 en el servidor, la primera operación se marca 'conflict' y las otras dos quedan 'blocked'. No se envía nada al servidor, ninguna operación se pierde y las tres conservan su baseVersion original (1): un conflicto real no reubica la versión base."
     }
   ]
 }
