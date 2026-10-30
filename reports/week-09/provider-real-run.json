@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "week": 9,
+  "commitSha": "4b7201d1c7d37530aea9da50e562f8984b0345b9",
+  "generatedAt": "2026-10-30T01:42:07.574Z",
+  "provider": "Nominatim (OpenStreetMap)",
+  "endpoint": "https://nominatim.openstreetmap.org/search",
+  "note": "Consulta de un lugar público; sin datos personales, de incidencias ni credenciales. Una sola solicitud (límite del proveedor: 1 por segundo).",
+  "checks": [
+    {
+      "id": "provider-real-geocoding",
+      "status": "pass",
+      "scenarioType": "nominal",
+      "command": "node tools/week-09-provider-real-run.mjs",
+      "evidence": {
+        "query": "Palacio de Bellas Artes, Ciudad de México",
+        "httpStatus": 200,
+        "failure": null,
+        "elapsedMs": 462,
+        "resultAccepted": true,
+        "location": {
+          "label": "Palacio de Bellas Artes, Avenida Juárez, Centro, Roma, Ciudad de México, Cuauhtémoc, Ciudad de México, 06050, México",
+          "latitude": 19.4355009,
+          "longitude": -99.1412585
+        }
+      }
+    }
+  ]
+}
