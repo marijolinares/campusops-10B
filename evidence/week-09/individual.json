@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "week": 9,
+  "teamId": "campusops-team",
+  "members": [
+    {
+      "studentId": "3523110316",
+      "commitShas": [
+        "2ed9e938e0bade438cf53a5d1be1fc86a2ccf2cb",
+        "4b7201d1c7d37530aea9da50e562f8984b0345b9"
+      ],
+      "files": [
+        "src/domain/location.ts",
+        "src/api/geocodingClient.ts",
+        "src/ui/components/LocationField.tsx",
+        "src/course-evaluation/index.ts",
+        "course-tests/team/week-09-location.test.ts",
+        "course-tests/team/week-09-location-ui.test.tsx",
+        "tools/week-09-provider-real-run.mjs",
+        "docs/resilience-policy.md"
+      ],
+      "tests": [
+        "npx jest --no-watchman course-tests/team/week-09-location.test.ts course-tests/team/week-09-location-ui.test.tsx"
+      ],
+      "reviews": [],
+      "prediction": "Esperaba que selectIncidentLocation aceptara sólo objetos con etiqueta y coordenadas finitas dentro de rango (incluidos 0 y los límites exactos) y que null, error como dato, objeto incompleto, coordenadas fuera de rango, NaN, texto o arreglos cayeran a ubicación manual sin latitude ni longitude. Esperaba que, contra el doble controlado del backend, éxito diera proveedor; incomplete, nullable, invalid_coordinates y malformed dieran manual; 429, 500, timeout real (abortado a 300 ms con el doble tardando 1200 ms) y puerto cerrado dieran manual; y que la caché evitara la segunda llamada, venciera por TTL y no guardara fallos ni respuestas incompletas.",
+      "command": "npx jest --no-watchman course-tests/team/week-09-location.test.ts course-tests/team/week-09-location-ui.test.tsx",
+      "observedResult": "Pasaron 39 de 39 pruebas en 2 suites (week-09-location y week-09-location-ui). npm run typecheck y npm run lint no reportaron errores. node tools/week-09-provider-real-run.mjs hizo una solicitud real a Nominatim (HTTP 200, 462 ms) y el resultado fue aceptado como proveedor; quedó en reports/week-09/provider-real-run.json. Las 3 pruebas públicas de planRetry en course-tests/public/week-09.test.ts siguen fallando porque esa parte corresponde a Irvin y aún no está integrada.",
+      "explanation": "Implementé la decisión de ubicación en src/domain/location.ts (chooseIncidentLocation) y la conecté en selectIncidentLocation de src/course-evaluation/index.ts. Escribí el adaptador src/api/geocodingClient.ts: arma la consulta, aplica timeout con AbortController, clasifica fallos (timeout, 429, 5xx, red, cuerpo ilegible), normaliza la respuesta de Nominatim y cachea sólo resultados utilizables con TTL y tope de entradas; sus eventos de registro no incluyen consulta, etiqueta ni coordenadas. Agregué el componente LocationField para capturar edificio, zona o referencia cuando no hay proveedor, y las pruebas contra el backend didáctico local. Redacté las secciones de proveedor, caché y ubicación manual de docs/resilience-policy.md con las restricciones de Nominatim. Declaración de IA: usé un asistente de IA (Antigravity) para redactar el código, las pruebas y el documento; lo verifiqué ejecutando las pruebas, typecheck y lint, y la ejecución real contra el proveedor."
+    }
+  ]
+}

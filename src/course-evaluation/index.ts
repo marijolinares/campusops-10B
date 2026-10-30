@@ -9,6 +9,7 @@ import type {
 import type { IncidentLocation } from '../campusops/contracts';
 import { canRetry, isStaleGeneration, transition, type SessionStatus } from '../domain/session';
 import { dedupeByOperationId, mergeRecords } from '../domain/sync';
+import { chooseIncidentLocation } from '../domain/location';
 
 
 function pending(name: string): never {
@@ -203,7 +204,7 @@ export function reducePermissionLifecycle(
   return pending('reducePermissionLifecycle');
 }
 
-/** Week 09: see docs/CAMPUSOPS_API.md; this is not a completed solution. */
+/** Week 09: see docs/CAMPUSOPS_API.md. La decisión vive en src/domain/location.ts. */
 export function selectIncidentLocation(_provider: unknown, _manualLabel: string): IncidentLocation {
-  return pending('selectIncidentLocation');
+  return chooseIncidentLocation(_provider, _manualLabel);
 }
