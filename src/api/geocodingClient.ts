@@ -1,6 +1,8 @@
 import type { FetchLike } from './incidentClient';
 import { chooseIncidentLocation } from '../domain/location';
 import type { IncidentLocation } from '../campusops/contracts';
+import { withRetry, type RetryLogEntry } from '../application/retryOperation';
+import type { RetryPolicy } from '../domain/retry';
 
 /**
  * Adaptador de geocodificación. Aísla al proveedor externo: la app sólo conoce
@@ -36,6 +38,15 @@ export type GeocodingConfig = Readonly<{
   now?: () => number;
   /** Convierte la respuesta JSON del proveedor al forma { label, latitude, longitude }. */
   normalize?: (body: unknown) => unknown;
+  /**
+   * Reintentos de la consulta (GET). Sin esta opción no hay reintentos.
+   * Se aplica la política de `domain/retry`: timeout, 429 y 5xx; respeta Retry-After.
+   */
+  retry?: Readonly<{
+    policy?: RetryPolicy;
+    sleep?: (ms: number) => Promise<void>;
+    onAttempt?: (entry: RetryLogEntry) => void;
+  }>;
   /** Recibe eventos sanitizados: nunca la consulta, la etiqueta ni coordenadas. */
   log?: (event: GeocodingEvent) => void;
 }>;
@@ -83,7 +94,7 @@ export function createGeocodingClient(config: GeocodingConfig): GeocodingClient 
 
   const emit = (event: GeocodingEvent) => config.log?.(event);
 
-  async function fetchProvider(query: string): Promise<{ value: unknown; failure?: GeocodingFailure; status?: number }> {
+  async function fetchProvider(query: string): Promise<{ value: unknown; failure?: GeocodingFailure; status?: number; retryAfterMs?: number }> {
     const params = new URLSearchParams({ ...(config.extraParams ?? {}), [queryParam]: query });
     const separator = config.endpoint.includes('?') ? '&' : '?';
     const controller = new AbortController();
@@ -98,7 +109,15 @@ export function createGeocodingClient(config: GeocodingConfig): GeocodingClient 
         headers: { ...(config.headers ?? {}) },
         signal: controller.signal,
       });
-      if (!response.ok) return { value: null, failure: classify(response.status), status: response.status };
+      if (!response.ok) {
+        const seconds = Number(response.headers?.get('retry-after'));
+        return {
+          value: null,
+          failure: classify(response.status),
+          status: response.status,
+          ...(Number.isFinite(seconds) && seconds > 0 ? { retryAfterMs: seconds * 1000 } : {}),
+        };
+      }
       let body: unknown;
       try {
         body = JSON.parse(await response.text());
@@ -113,6 +132,33 @@ export function createGeocodingClient(config: GeocodingConfig): GeocodingClient 
     }
   }
 
+  /** Una consulta con los reintentos configurados; devuelve el último resultado. */
+  async function fetchWithRetry(query: string): Promise<{ value: unknown; failure?: GeocodingFailure; status?: number }> {
+    if (!config.retry) return fetchProvider(query);
+    const sleep = config.retry.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
+    let last: Awaited<ReturnType<typeof fetchProvider>> = { value: null };
+    const outcome = await withRetry(
+      async () => {
+        last = await fetchProvider(query);
+        if (!last.failure) return { ok: true as const, value: last };
+        const status = last.failure === 'timeout' ? ('timeout' as const) : (last.status ?? 0);
+        // Fallos sin estado HTTP que no son timeout (red, cuerpo ilegible): status 0 => no reintentable.
+        return {
+          ok: false as const,
+          status,
+          ...(last.retryAfterMs === undefined ? {} : { retryAfterMs: last.retryAfterMs }),
+        };
+      },
+      {
+        method: 'GET',
+        sleep,
+        ...(config.retry.policy ? { policy: config.retry.policy } : {}),
+        ...(config.retry.onAttempt ? { onAttempt: config.retry.onAttempt } : {}),
+      },
+    );
+    return outcome.ok ? outcome.value : last;
+  }
+
   async function lookupInternal(query: string): Promise<{ value: unknown; failure?: GeocodingFailure; status?: number; cached: boolean }> {
     const key = query.trim().toLowerCase();
     if (ttl > 0) {
@@ -120,7 +166,7 @@ export function createGeocodingClient(config: GeocodingConfig): GeocodingClient 
       if (hit && now() - hit.storedAt < ttl) return { value: hit.value, cached: true };
       if (hit) cache.delete(key);
     }
-    const result = await fetchProvider(query);
+    const result = await fetchWithRetry(query);
     // Sólo se cachean respuestas utilizables; los fallos no se guardan para poder reintentar.
     if (ttl > 0 && !result.failure && chooseIncidentLocation(result.value, '').source === 'provider') {
       if (cache.size >= maxEntries) {
