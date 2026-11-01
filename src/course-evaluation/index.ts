@@ -10,6 +10,7 @@ import type { IncidentLocation } from '../campusops/contracts';
 import { canRetry, isStaleGeneration, transition, type SessionStatus } from '../domain/session';
 import { dedupeByOperationId, mergeRecords } from '../domain/sync';
 import { chooseIncidentLocation } from '../domain/location';
+import { decideRetry } from '../domain/retry';
 
 
 function pending(name: string): never {
@@ -181,16 +182,6 @@ export function deduplicateOperations<T extends Readonly<{ operationId: string }
     return dedupeByOperationId(_operations);
 }
 
-export function planRetry(_input: Readonly<{
-  method: 'GET' | 'POST';
-  status: number | 'timeout';
-  attempt: number;
-  retryAfterMs?: number;
-  idempotencyKey?: string;
-}>): Readonly<{ retry: boolean; delayMs: number; requiresStableIdempotencyKey: boolean }> {
-  return pending('planRetry');
-}
-
 export function reduceRemoteResponses(_input: Readonly<{
   activeRequestId: string;
   responses: readonly RemoteResponse[];
@@ -207,4 +198,13 @@ export function reducePermissionLifecycle(
 /** Week 09: see docs/CAMPUSOPS_API.md. La decisión vive en src/domain/location.ts. */
 export function selectIncidentLocation(_provider: unknown, _manualLabel: string): IncidentLocation {
   return chooseIncidentLocation(_provider, _manualLabel);
+}
+export function planRetry(input: Readonly<{
+  method: 'GET' | 'POST';
+  status: number | 'timeout';
+  attempt: number;
+  retryAfterMs?: number;
+  idempotencyKey?: string;
+}>): Readonly<{ retry: boolean; delayMs: number; requiresStableIdempotencyKey: boolean }> {
+  return decideRetry(input);
 }

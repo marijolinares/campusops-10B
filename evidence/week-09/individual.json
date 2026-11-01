@@ -27,6 +27,28 @@
       "command": "npx jest --no-watchman course-tests/team/week-09-location.test.ts course-tests/team/week-09-location-ui.test.tsx",
       "observedResult": "Pasaron 39 de 39 pruebas en 2 suites (week-09-location y week-09-location-ui). npm run typecheck y npm run lint no reportaron errores. node tools/week-09-provider-real-run.mjs hizo una solicitud real a Nominatim (HTTP 200, 462 ms) y el resultado fue aceptado como proveedor; quedó en reports/week-09/provider-real-run.json. Las 3 pruebas públicas de planRetry en course-tests/public/week-09.test.ts siguen fallando porque esa parte corresponde a Irvin y aún no está integrada.",
       "explanation": "Implementé la decisión de ubicación en src/domain/location.ts (chooseIncidentLocation) y la conecté en selectIncidentLocation de src/course-evaluation/index.ts. Escribí el adaptador src/api/geocodingClient.ts: arma la consulta, aplica timeout con AbortController, clasifica fallos (timeout, 429, 5xx, red, cuerpo ilegible), normaliza la respuesta de Nominatim y cachea sólo resultados utilizables con TTL y tope de entradas; sus eventos de registro no incluyen consulta, etiqueta ni coordenadas. Agregué el componente LocationField para capturar edificio, zona o referencia cuando no hay proveedor, y las pruebas contra el backend didáctico local. Redacté las secciones de proveedor, caché y ubicación manual de docs/resilience-policy.md con las restricciones de Nominatim. Declaración de IA: usé un asistente de IA (Antigravity) para redactar el código, las pruebas y el documento; lo verifiqué ejecutando las pruebas, typecheck y lint, y la ejecución real contra el proveedor."
+    },
+      {
+      "studentId": "3523110247",
+      "commitShas": [
+        "f45040d6cab50a9ae0418de88b5082e5dfa5b264",
+        "31f9665fb4d213dba65a512b70e4e88b1a79e6ee"
+      ],
+      "files": [
+        "src/domain/retry.ts",
+        "src/application/retryOperation.ts",
+        "src/course-evaluation/index.ts",
+        "course-tests/team/week-09-retry.test.ts"
+      ],
+      "tests": [
+        "npx jest --no-watchman course-tests/team/week-09-retry.test.ts course-tests/public/week-09.test.ts"
+      ],
+      "reviews": [],
+      "prediction": "Esperaba que planRetry no reintentara desde el intento 4, que usara esperas progresivas de 500, 1000 y 2000 ms, que respetara un Retry-After válido (800 ms) y que ignorara uno inválido o demasiado grande. Esperaba que un POST sin clave de idempotencia no se reintentara y que con clave estable sí. Esperaba que withRetry se detuviera tras 4 intentos con un fallo persistente, sin bucle infinito.",
+      "command": "npx jest --no-watchman course-tests/team/week-09-retry.test.ts course-tests/public/week-09.test.ts",
+      "observedResult": "Las suites week-09-retry y public/week-09 pasaron (PASS). En npm test completo pasaron 194 pruebas y fallaron 7: las de semanas 10 a 13 (funciones y archivos de esas semanas que aún no existen) y dos pruebas de render por timeout de 5 s (smoke y week-09-location-ui), que no usan planRetry.",
+      "explanation": "Implementé planRetry en src/domain/retry.ts (decideRetry) y lo conecté en src/course-evaluation/index.ts. Escribí withRetry en src/application/retryOperation.ts, con sleep inyectado y un registro de intentos sin cuerpos ni tokens. Escribí las pruebas unitarias de ambas funciones. Declaración de IA: usé Claude (Anthropic) para ayudarme a escribir el código y las pruebas; verifiqué el resultado ejecutando las pruebas yo mismo."
     }
+    
   ]
 }
