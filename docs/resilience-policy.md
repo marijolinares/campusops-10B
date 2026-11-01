@@ -47,15 +47,45 @@ La alternativa manual siempre está disponible: [`src/ui/components/LocationFiel
 
 **Nunca se inventan coordenadas:** la ubicación manual no incluye `latitude` ni `longitude`.
 
-## 4. Reglas de reintento  *(Irvin — pendiente)*
+## 4. Reglas de reintento  *(Irvin: función de decisión; Majo: conexión con el adaptador)*
 
-_Se completa con `planRetry`: respeto de `Retry-After`, esperas progresivas, límite (no se reintenta desde el intento 4), demoras finitas y POST sólo con identidad estable._
+Decisión pura: [`src/domain/retry.ts`](../src/domain/retry.ts) (`decideRetry`, expuesta como `planRetry`). Ejecución: [`src/application/retryOperation.ts`](../src/application/retryOperation.ts) (`withRetry`). Primer consumidor real: la opción `retry` de [`src/api/geocodingClient.ts`](../src/api/geocodingClient.ts).
 
-## 5. Respuesta perdida y reglas de fallo  *(Irvin — pendiente)*
+| Regla | Valor |
+|---|---|
+| Qué se reintenta | `timeout`, 429 y 5xx. Nunca otros 4xx (404, 422, 409…), cuerpo ilegible ni errores de contrato |
+| Intentos | Se reintenta tras los intentos 1, 2 y 3. Desde el intento 4 ya no (4 intentos como máximo) |
+| Espera | Progresiva: 500 ms, 1000 ms, 2000 ms (`base × 2^(intento−1)`), con tope de 5000 ms |
+| `Retry-After` | Si es válido (número finito > 0) manda sobre la espera calculada. Si pide más que el tope (5 s) **no se reintenta** y se informa o se usa la alternativa |
+| Demoras | Siempre finitas; un valor inválido (negativo, NaN, infinito) se ignora |
+| POST | Sólo se reintenta con una `Idempotency-Key` estable y el mismo contenido. Sin clave: un solo intento |
+| GET | Reintentable sin clave (no cambia el estado del servidor) |
+| Pruebas sin esperar | `sleep` es inyectable: las pruebas no duermen de verdad |
 
-_Se completa con el caso `timeout_after_commit`: misma clave y mismo contenido, sin duplicados; cuándo reintentar, cuándo usar la alternativa y cuándo informar el fallo._
+**Registro:** `onAttempt` entrega sólo `{ attempt, outcome, status, delayMs }`. Nunca cuerpos, tokens, consultas ni datos de la incidencia.
+
+## 5. Respuesta perdida y reglas de fallo  *(Irvin: reglas; Majo: prueba con el backend)*
+
+**Respuesta perdida:** el cliente envía un POST, el servidor lo guarda, pero la respuesta no llega y el cliente cuenta un timeout. Si el cliente creara otra operación habría un duplicado. Por eso el reintento reutiliza **la misma clave y el mismo contenido**: el servidor reconoce la operación y responde `200` con `duplicate: true`, sin repetir el efecto.
+
+Prueba contra el backend didáctico real (`X-Course-Scenario: timeout_after_commit`): [`course-tests/team/week-09-lost-response.test.ts`](../course-tests/team/week-09-lost-response.test.ts). Comprueba que el primer intento termina en timeout, el segundo devuelve `200` y `duplicate: true`, y que al final existe **una sola** incidencia con esa descripción. Una segunda prueba comprueba que un POST sin clave no se reintenta.
+
+**Qué hacer según el fallo:**
+
+| Situación | Acción |
+|---|---|
+| Timeout, 429 con espera aceptable, 5xx | Reintentar según la sección 4 |
+| 429 con `Retry-After` mayor al tope | No reintentar; informar o usar la alternativa |
+| Se agotan los intentos | Geocodificación: ubicación manual. Operaciones de incidencia: la operación queda pendiente en la cola (política de sincronización, `docs/sync-policy.md`) |
+| POST sin clave estable | No reintentar; informar al usuario |
+| 409 `idempotency_key_reused` o `version_conflict` | No reintentar: es un conflicto, no una falla temporal |
+| 4xx de validación (422) | No reintentar; corregir los datos |
+| Cuerpo ilegible o contrato inválido | No reintentar; tratar como resultado no disponible |
 
 ## 6. Pruebas que respaldan esta política
 
 - `course-tests/team/week-09-location.test.ts`: reglas de aceptación, adaptador contra el doble (éxito, incompleto, inválido, malformado, 429, 500, timeout real, desconexión) y caché.
 - `course-tests/team/week-09-location-ui.test.tsx`: captura manual desde la interfaz.
+- `course-tests/team/week-09-retry.test.ts`: `planRetry` y `withRetry` (límite, esperas, `Retry-After`, POST con y sin clave).
+- `course-tests/team/week-09-geocoding-retry.test.ts`: el adaptador de geocodificación aplica la política de reintento.
+- `course-tests/team/week-09-lost-response.test.ts`: respuesta perdida contra el backend real, sin duplicados.
