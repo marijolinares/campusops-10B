@@ -28,11 +28,11 @@
       "observedResult": "Pasaron 39 de 39 pruebas en 2 suites (week-09-location y week-09-location-ui). npm run typecheck y npm run lint no reportaron errores. node tools/week-09-provider-real-run.mjs hizo una solicitud real a Nominatim (HTTP 200, 462 ms) y el resultado fue aceptado como proveedor; quedó en reports/week-09/provider-real-run.json. Las 3 pruebas públicas de planRetry en course-tests/public/week-09.test.ts siguen fallando porque esa parte corresponde a Irvin y aún no está integrada.",
       "explanation": "Implementé la decisión de ubicación en src/domain/location.ts (chooseIncidentLocation) y la conecté en selectIncidentLocation de src/course-evaluation/index.ts. Escribí el adaptador src/api/geocodingClient.ts: arma la consulta, aplica timeout con AbortController, clasifica fallos (timeout, 429, 5xx, red, cuerpo ilegible), normaliza la respuesta de Nominatim y cachea sólo resultados utilizables con TTL y tope de entradas; sus eventos de registro no incluyen consulta, etiqueta ni coordenadas. Agregué el componente LocationField para capturar edificio, zona o referencia cuando no hay proveedor, y las pruebas contra el backend didáctico local. Redacté las secciones de proveedor, caché y ubicación manual de docs/resilience-policy.md con las restricciones de Nominatim. Declaración de IA: usé un asistente de IA (Antigravity) para redactar el código, las pruebas y el documento; lo verifiqué ejecutando las pruebas, typecheck y lint, y la ejecución real contra el proveedor."
     },
-      {
+    {
       "studentId": "3523110247",
       "commitShas": [
         "f45040d6cab50a9ae0418de88b5082e5dfa5b264",
-        "31f9665fb4d213dba65a512b70e4e88b1a79e6ee"
+        "4f6f830559b87fa79a6c5a95cd739c91f7119b76"
       ],
       "files": [
         "src/domain/retry.ts",
@@ -48,7 +48,35 @@
       "command": "npx jest --no-watchman course-tests/team/week-09-retry.test.ts course-tests/public/week-09.test.ts",
       "observedResult": "Las suites week-09-retry y public/week-09 pasaron (PASS). En npm test completo pasaron 194 pruebas y fallaron 7: las de semanas 10 a 13 (funciones y archivos de esas semanas que aún no existen) y dos pruebas de render por timeout de 5 s (smoke y week-09-location-ui), que no usan planRetry.",
       "explanation": "Implementé planRetry en src/domain/retry.ts (decideRetry) y lo conecté en src/course-evaluation/index.ts. Escribí withRetry en src/application/retryOperation.ts, con sleep inyectado y un registro de intentos sin cuerpos ni tokens. Escribí las pruebas unitarias de ambas funciones. Declaración de IA: usé Claude (Anthropic) para ayudarme a escribir el código y las pruebas; verifiqué el resultado ejecutando las pruebas yo mismo."
+    },
+    {
+      "studentId": "3523110094",
+      "commitShas": [
+        "c228557893bedbb9e00e24198f92f4598ceb2594",
+        "3ca9981cb30c7595b8dda1eecb79a6da4d95b292"
+      ],
+      "files": [
+        "course-tests/team/week-09-lost-response.test.ts",
+        "course-tests/team/week-09-geocoding-retry.test.ts",
+        "course-tests/team/week-09-evidence-run.test.ts",
+        "src/api/geocodingClient.ts",
+        "docs/resilience-policy.md",
+        "reports/week-09/fault-injection.json",
+        "reports/week-09/retry-metrics.json",
+        "evidence/week-09/engineering.json"
+      ],
+      "tests": [
+        "npx jest --no-watchman course-tests/team/week-09",
+        "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts"
+      ],
+      "reviews": [
+        "Revisé la PR #23 de Irvin (planRetry y withRetry) antes del merge: la lógica era correcta pero faltaban la prueba de respuesta perdida, la conexión del reintento con un adaptador real y las secciones 4 y 5 de la política; los completé en mis PR #24 y #25.",
+        "Revisé los commits de German (ubicación, adaptador y caché) antes de integrarlos a develop: funcionaban, pero el adaptador no leía Retry-After; lo añadí en mi PR #24."
+      ],
+      "prediction": "Esperaba que, con el proveedor fallando siempre (500, 429 o timeout), el adaptador hiciera exactamente 4 intentos con esperas de 500, 1000 y 2000 ms (o la de Retry-After si es válida) y cayera a ubicación manual; que un cuerpo ilegible o incompleto no se reintentara; y que con el escenario timeout_after_commit el segundo intento, con la misma clave y el mismo contenido, devolviera 200 con duplicate:true y quedara una sola incidencia guardada.",
+      "command": "npx jest --no-watchman course-tests/team/week-09 y, para los reportes, W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "observedResult": "Pasaron 57 de 57 pruebas en las 5 suites de week-09. En la corrida real contra el backend local: 500 siempre = 4 intentos con esperas observadas de 506, 1009 y 2002 ms (3531 ms en total); 429 con Retry-After de 1 s = 4 intentos y esperas de 1010, 1004 y 1007 ms; timeout = 4 intentos (4777 ms); cuerpo ilegible e incompleto = 1 intento; respuesta perdida tras guardar = 2 intentos, segundo con duplicate:true y 0 duplicados (829 ms). Nunca hubo más de 4 intentos. Los resultados están en reports/week-09/retry-metrics.json y fault-injection.json.",
+      "explanation": "Escribí la prueba de respuesta perdida contra el backend didáctico real (week-09-lost-response.test.ts) y conecté withRetry de Irvin con el adaptador de geocodificación de German mediante la opción retry de src/api/geocodingClient.ts, que ahora lee Retry-After y es opcional, de modo que sin ella el comportamiento anterior no cambia. Redacté las secciones 4 y 5 de docs/resilience-policy.md y escribí el generador week-09-evidence-run.test.ts, que ejecuta cada falla con esperas reales y produce los reportes de fault-injection y retry-metrics. Declaración de IA: usé Claude (Anthropic) para redactar el código, las pruebas y el documento; lo verifiqué ejecutando typecheck, lint, la verificación de arquitectura, las pruebas y la corrida real, y puedo explicar cada decisión."
     }
-    
   ]
 }
