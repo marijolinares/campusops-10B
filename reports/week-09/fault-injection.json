@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "week": 9,
+  "commitSha": "bdbaee933e2fc4ba9c1c63592b564cc2c6c6ae3a",
+  "generatedAt": "2026-11-02T00:03:57.603Z",
+  "checks": [
+    {
+      "id": "geocoding-success",
+      "status": "pass",
+      "scenarioType": "nominal",
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "evidence": "Falla: sin fallo (referencia). Escenario success. 1 intento(s) con estados [ok]; resultado final: ubicación del proveedor. outcome=provider status=200."
+    },
+    {
+      "id": "geocoding-server-error",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "evidence": "Falla: el proveedor responde 500 siempre. Escenario server_error. 4 intento(s) con estados [500, 500, 500, 500]; resultado final: ubicación manual (alternativa). outcome=manual failure=server_error status=500."
+    },
+    {
+      "id": "geocoding-rate-limited",
+      "status": "pass",
+      "scenarioType": "boundary",
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "evidence": "Falla: el proveedor responde 429 con Retry-After: 1. Escenario rate_limited. 4 intento(s) con estados [429, 429, 429, 429]; resultado final: ubicación manual (alternativa). outcome=manual failure=rate_limited status=429."
+    },
+    {
+      "id": "geocoding-timeout",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "evidence": "Falla: el proveedor tarda 1200 ms y el cliente espera 300 ms. Escenario slow. 4 intento(s) con estados [timeout, timeout, timeout, timeout]; resultado final: ubicación manual (alternativa). outcome=manual failure=timeout."
+    },
+    {
+      "id": "geocoding-malformed",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "evidence": "Falla: cuerpo que no es JSON. Escenario malformed. 1 intento(s) con estados [200]; resultado final: ubicación manual (alternativa). outcome=manual failure=invalid_body status=200."
+    },
+    {
+      "id": "geocoding-incomplete",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "evidence": "Falla: respuesta sin coordenadas. Escenario incomplete. 1 intento(s) con estados [ok]; resultado final: ubicación manual (alternativa). outcome=manual failure=invalid_body status=200."
+    },
+    {
+      "id": "lost-response-after-commit",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "evidence": "Falla: el servidor guarda la incidencia y responde 1500 ms después; el cliente espera 300 ms. Escenario timeout_after_commit. 2 intento(s) con estados [timeout, ok]; resultado final: HTTP 200, duplicate=true. incidencias guardadas con esa descripción: 1."
+    }
+  ]
+}

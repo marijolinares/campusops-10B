@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "week": 9,
+  "commitSha": "bdbaee933e2fc4ba9c1c63592b564cc2c6c6ae3a",
+  "generatedAt": "2026-11-02T00:03:57.603Z",
+  "policy": {
+    "maxAttempt": 4,
+    "baseDelayMs": 500,
+    "maxDelayMs": 5000
+  },
+  "checks": [
+    {
+      "id": "metrics-geocoding-success",
+      "status": "pass",
+      "scenarioType": "nominal",
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "evidence": "GET success: 1 intento(s) (máximo 4); esperas planeadas [] ms, esperas observadas [] ms; total 17 ms; duplicados: no aplica (GET)."
+    },
+    {
+      "id": "metrics-geocoding-server-error",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "evidence": "GET server_error: 4 intento(s) (máximo 4); esperas planeadas [500, 1000, 2000] ms, esperas observadas [506, 1009, 2002] ms; total 3531 ms; duplicados: no aplica (GET)."
+    },
+    {
+      "id": "metrics-geocoding-rate-limited",
+      "status": "pass",
+      "scenarioType": "boundary",
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "evidence": "GET rate_limited: 4 intento(s) (máximo 4); esperas planeadas [1000, 1000, 1000] ms, esperas observadas [1010, 1004, 1007] ms; total 3032 ms; duplicados: no aplica (GET)."
+    },
+    {
+      "id": "metrics-geocoding-timeout",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "evidence": "GET slow: 4 intento(s) (máximo 4); esperas planeadas [500, 1000, 2000] ms, esperas observadas [503, 1006, 2016] ms; total 4777 ms; duplicados: no aplica (GET)."
+    },
+    {
+      "id": "metrics-geocoding-malformed",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "evidence": "GET malformed: 1 intento(s) (máximo 4); esperas planeadas [] ms, esperas observadas [] ms; total 4 ms; duplicados: no aplica (GET)."
+    },
+    {
+      "id": "metrics-geocoding-incomplete",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "evidence": "GET incomplete: 1 intento(s) (máximo 4); esperas planeadas [] ms, esperas observadas [] ms; total 3 ms; duplicados: no aplica (GET)."
+    },
+    {
+      "id": "metrics-lost-response-after-commit",
+      "status": "pass",
+      "scenarioType": "failure",
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "evidence": "POST timeout_after_commit: 2 intento(s) (máximo 4); esperas planeadas [500] ms, esperas observadas [500] ms; total 829 ms; duplicados: 0."
+    }
+  ],
+  "measurements": [
+    {
+      "id": "geocoding-success",
+      "method": "GET",
+      "scenario": "success",
+      "attempts": 1,
+      "statuses": [
+        "ok"
+      ],
+      "plannedDelaysMs": [],
+      "observedSleepMs": [],
+      "totalMs": 17,
+      "duplicates": null
+    },
+    {
+      "id": "geocoding-server-error",
+      "method": "GET",
+      "scenario": "server_error",
+      "attempts": 4,
+      "statuses": [
+        500,
+        500,
+        500,
+        500
+      ],
+      "plannedDelaysMs": [
+        500,
+        1000,
+        2000
+      ],
+      "observedSleepMs": [
+        506,
+        1009,
+        2002
+      ],
+      "totalMs": 3531,
+      "duplicates": null
+    },
+    {
+      "id": "geocoding-rate-limited",
+      "method": "GET",
+      "scenario": "rate_limited",
+      "attempts": 4,
+      "statuses": [
+        429,
+        429,
+        429,
+        429
+      ],
+      "plannedDelaysMs": [
+        1000,
+        1000,
+        1000
+      ],
+      "observedSleepMs": [
+        1010,
+        1004,
+        1007
+      ],
+      "totalMs": 3032,
+      "duplicates": null
+    },
+    {
+      "id": "geocoding-timeout",
+      "method": "GET",
+      "scenario": "slow",
+      "attempts": 4,
+      "statuses": [
+        "timeout",
+        "timeout",
+        "timeout",
+        "timeout"
+      ],
+      "plannedDelaysMs": [
+        500,
+        1000,
+        2000
+      ],
+      "observedSleepMs": [
+        503,
+        1006,
+        2016
+      ],
+      "totalMs": 4777,
+      "duplicates": null
+    },
+    {
+      "id": "geocoding-malformed",
+      "method": "GET",
+      "scenario": "malformed",
+      "attempts": 1,
+      "statuses": [
+        200
+      ],
+      "plannedDelaysMs": [],
+      "observedSleepMs": [],
+      "totalMs": 4,
+      "duplicates": null
+    },
+    {
+      "id": "geocoding-incomplete",
+      "method": "GET",
+      "scenario": "incomplete",
+      "attempts": 1,
+      "statuses": [
+        "ok"
+      ],
+      "plannedDelaysMs": [],
+      "observedSleepMs": [],
+      "totalMs": 3,
+      "duplicates": null
+    },
+    {
+      "id": "lost-response-after-commit",
+      "method": "POST",
+      "scenario": "timeout_after_commit",
+      "attempts": 2,
+      "statuses": [
+        "timeout",
+        "ok"
+      ],
+      "plannedDelaysMs": [
+        500
+      ],
+      "observedSleepMs": [
+        500
+      ],
+      "totalMs": 829,
+      "duplicates": 0
+    }
+  ]
+}

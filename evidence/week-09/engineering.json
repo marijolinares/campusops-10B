@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "week": 9,
+  "commitSha": "bdbaee933e2fc4ba9c1c63592b564cc2c6c6ae3a",
+  "decision": "Política de reintento y de fallo para la integración con el proveedor de ubicación y para las operaciones con efecto: se reintenta sólo lo temporal (timeout, 429 y 5xx), con un máximo de 4 intentos (no se reintenta desde el intento 4), esperas progresivas de 500, 1000 y 2000 ms con tope de 5000 ms, y un Retry-After válido manda sobre la espera calculada; si pide más que el tope no se reintenta. Un POST sólo se reintenta con una Idempotency-Key estable y el mismo contenido, de modo que si el servidor guardó pero la respuesta se perdió, el reintento recibe 200 con duplicate:true y no repite el efecto. Cuando se agotan los intentos o el fallo no es temporal (404, 422, 409, cuerpo ilegible o incompleto) no se insiste: la geocodificación continúa con la alternativa de ubicación manual y las operaciones de incidencia quedan pendientes en la cola o se informa al usuario. La decisión está en src/domain/retry.ts (decideRetry), src/application/retryOperation.ts (withRetry) y la opción retry de src/api/geocodingClient.ts, y documentada en docs/resilience-policy.md.",
+  "alternatives": [
+    "Reintentar indefinidamente hasta que el proveedor responda. Descartada: provoca exceso de solicitudes, incumple el límite de uso del proveedor (máximo 1 por segundo en Nominatim) y deja al usuario esperando sin salida.",
+    "No reintentar nunca y mostrar el error al primer fallo. Descartada: un timeout o un 503 aislado casi siempre se recupera, y se perdería ubicación del proveedor que sí estaba disponible.",
+    "Reintentar el POST generando una clave nueva en cada intento. Descartada: si el servidor ya guardó y sólo se perdió la respuesta, cada intento crearía otra incidencia duplicada; la clave debe ser estable.",
+    "Reintentar con espera fija e ignorar Retry-After. Descartada: ignora lo que el proveedor pide con el 429 y puede agravar la limitación en lugar de resolverla."
+  ],
+  "tradeoff": "Reintentar mejora la disponibilidad ante fallos breves, pero cuesta tiempo: en el peor caso la geocodificación espera unos 3.5 s de esperas más el tiempo de los 4 intentos (4777 ms medidos con timeout) antes de caer a la ubicación manual, y se hacen hasta 4 solicitudes al proveedor por consulta. Aceptamos ese costo acotado a cambio de no insistir sin fin, no saturar al proveedor y no duplicar efectos. La clave de idempotencia estable añade la obligación de conservar el identificador de la operación entre intentos, pero a cambio un reintento tras una respuesta perdida es seguro. Todavía no hay interfaz que muestre al usuario cuántos intentos se hicieron.",
+  "requirementIds": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "verification": [
+    {
+      "command": "npx jest --no-watchman course-tests/team/week-09-retry.test.ts course-tests/public/week-09.test.ts",
+      "result": "las suites pasan",
+      "evidence": "Reglas de decideRetry y withRetry: no se reintenta desde el intento 4, esperas de 500, 1000 y 2000 ms, Retry-After válido respetado y uno demasiado grande o inválido sin reintento, POST sin clave sin reintento y con clave sí (AC-02, AC-03)."
+    },
+    {
+      "command": "npx jest --no-watchman course-tests/team/week-09-geocoding-retry.test.ts",
+      "result": "6 de 6 pruebas pasan",
+      "evidence": "El adaptador reintenta un 503 una vez y tiene éxito, espera 2000 ms con Retry-After de 2, no reintenta con Retry-After de 120 s, se detiene en 4 intentos con 500 permanente y cae a ubicación manual, no reintenta un 404 ni un cuerpo ilegible, y sin la opción retry hace un solo intento (AC-02, AC-03)."
+    },
+    {
+      "command": "npx jest --no-watchman course-tests/team/week-09-lost-response.test.ts",
+      "result": "2 de 2 pruebas pasan",
+      "evidence": "Contra el backend didáctico real con timeout_after_commit: el primer intento termina en timeout, el segundo, con la misma clave y contenido, devuelve 200 con duplicate:true y existe una sola incidencia; un POST sin clave estable no se reintenta (AC-03, AC-04)."
+    },
+    {
+      "command": "W09_WRITE_REPORTS=1 npx jest course-tests/team/week-09-evidence-run.test.ts",
+      "result": "pasa; genera reports/week-09/fault-injection.json y retry-metrics.json",
+      "evidence": "Corrida real con esperas reales: 500 siempre, 429 con Retry-After y timeout terminan en 4 intentos con esperas de 500/1000/2000 ms o de 1000 ms, cuerpo ilegible e incompleto en 1 intento, y la respuesta perdida en 2 intentos con 0 duplicados. Ninguna falla supera los 4 intentos (AC-03, AC-04)."
+    }
+  ]
+}
